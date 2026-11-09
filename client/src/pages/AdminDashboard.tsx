@@ -24,6 +24,7 @@ import {
   X, 
   Shield 
 } from 'lucide-react';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'events' | 'users'>('events');
@@ -42,24 +43,47 @@ export const AdminDashboard: React.FC = () => {
     { skip: selectedEventForAttendees === null }
   );
 
-  const handleDeleteEvent = async (id: number) => {
-    if (window.confirm('Bu tədbiri silmək istədiyinizdən əminsiniz?')) {
-      await deleteEvent(id);
-    }
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const handleDeleteEvent = (id: number, title: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Tədbiri Sil',
+      message: `"${title}" tədbirini sistemdən həmişəlik silmək istədiyinizdən əminsiniz?`,
+      onConfirm: () => deleteEvent(id),
+    });
   };
 
-  const handleDeleteUser = async (id: number) => {
-    if (window.confirm('Bu istifadəçini silmək istədiyinizdən əminsiniz?')) {
-      await deleteUser(id);
-    }
+  const handleDeleteUser = (id: number, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'İstifadəçini Sil',
+      message: `"${name}" adlı istifadəçi hesabını sistemdən silmək istədiyinizdən əminsiniz?`,
+      onConfirm: () => deleteUser(id),
+    });
   };
 
-  const handleRemoveAttendee = async (userId: number, userName: string) => {
-    if (window.confirm(`${userName} adlı istifadəçini bu tədbirin qeydiyyat siyahısından silmək istəyirsiniz?`)) {
-      if (selectedEventForAttendees !== null) {
-        await removeAttendee({ eventId: selectedEventForAttendees, userId });
-      }
-    }
+  const handleRemoveAttendee = (userId: number, userName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Qeydiyyatı Sil',
+      message: `"${userName}" adlı istifadəçini bu tədbirin qeydiyyat siyahısından çıxarmaq istəyirsiniz?`,
+      onConfirm: () => {
+        if (selectedEventForAttendees !== null) {
+          removeAttendee({ eventId: selectedEventForAttendees, userId });
+        }
+      },
+    });
   };
 
   return (
@@ -204,7 +228,7 @@ export const AdminDashboard: React.FC = () => {
                       </Link>
 
                       <button
-                        onClick={() => handleDeleteEvent(event.id)}
+                        onClick={() => handleDeleteEvent(event.id, event.title)}
                         className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition"
                         title="Sil"
                       >
@@ -253,7 +277,7 @@ export const AdminDashboard: React.FC = () => {
                     <td className="px-6 py-4 text-right">
                       {u.role !== 'admin' && (
                         <button
-                          onClick={() => handleDeleteUser(u.id)}
+                          onClick={() => handleDeleteUser(u.id, u.name)}
                           className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition"
                           title="İstifadəçini sil"
                         >
@@ -320,6 +344,18 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Xüsusi Təsdiq Modalı */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Bəli, sil"
+        cancelText="Ləğv et"
+        isDestructive={true}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

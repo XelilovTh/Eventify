@@ -1,12 +1,13 @@
 // client/src/pages/MyRegistrations.tsx
 // Bu fayl istifadəçinin qeydiyyatdan keçdiyi bütün tədbirləri göstərən müstəqil səhifədir.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   useGetMyRegistrationsQuery, 
   useCancelRegistrationMutation 
 } from '../api/apiSlice';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { 
   Calendar, 
   MapPin, 
@@ -20,13 +21,14 @@ export const MyRegistrations: React.FC = () => {
   const { data: myEvents, isLoading } = useGetMyRegistrationsQuery();
   const [cancelRegistration] = useCancelRegistrationMutation();
 
-  const handleCancelReg = async (eventId: number, eventTitle: string) => {
-    if (window.confirm(`"${eventTitle}" tədbirindən qeydiyyatınızı ləğv etmək istəyirsiniz?`)) {
-      try {
-        await cancelRegistration(eventId).unwrap();
-      } catch (err) {
-        alert('Xəta baş verdi.');
-      }
+  const [selectedEventToCancel, setSelectedEventToCancel] = useState<{ id: number; title: string } | null>(null);
+
+  const confirmCancelReg = async () => {
+    if (!selectedEventToCancel) return;
+    try {
+      await cancelRegistration(selectedEventToCancel.id).unwrap();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -109,8 +111,8 @@ export const MyRegistrations: React.FC = () => {
                   </Link>
 
                   <button
-                    onClick={() => handleCancelReg(ev.id, ev.title)}
-                    className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition"
+                    onClick={() => setSelectedEventToCancel({ id: ev.id, title: ev.title })}
+                    className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition cursor-pointer"
                     title="Qeydiyyatı ləğv et"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -136,6 +138,18 @@ export const MyRegistrations: React.FC = () => {
           </Link>
         </div>
       )}
+
+      {/* Xüsusi Təsdiq Modalı */}
+      <ConfirmModal
+        isOpen={selectedEventToCancel !== null}
+        title="Qeydiyyatı Ləğv Et"
+        message={`"${selectedEventToCancel?.title}" tədbirindən qeydiyyatınızı ləğv etmək istədiyinizdən əminsiniz?`}
+        confirmText="Bəli, ləğv et"
+        cancelText="Geri"
+        isDestructive={true}
+        onConfirm={confirmCancelReg}
+        onClose={() => setSelectedEventToCancel(null)}
+      />
     </div>
   );
 };

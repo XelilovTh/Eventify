@@ -9,6 +9,7 @@ import {
 } from '../api/apiSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { updateUser, logout } from '../features/auth/authSlice';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { 
   User, 
   Lock, 
@@ -32,12 +33,11 @@ export const Profile: React.FC = () => {
   const [name, setName] = useState(user?.name || '');
   const [newPassword, setNewPassword] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  const handleLogout = () => {
-    if (window.confirm('Hesabınızdan çıxış etmək istədiyinizdən əminsiniz?')) {
-      dispatch(logout());
-      navigate('/login');
-    }
+  const confirmLogout = () => {
+    dispatch(logout());
+    navigate('/login');
   };
 
   // Favorilərin sayını oxuyuruq
@@ -201,15 +201,14 @@ export const Profile: React.FC = () => {
         {/* 4. Hesabdan Çıxış Bölməsi */}
         <div className="mt-10 pt-6 border-t border-borderBeige/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-primary">Sessiyanı Sonlandır</h3>
             <p className="text-xs text-secondary mt-0.5">
-              Cari cihazda aktiv olan hesabınızdan təhlükəsiz şəkildə çıxış edin.
+              Cihazda aktiv olan hesabınızdan təhlükəsiz şəkildə çıxış edin.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={() => setIsLogoutModalOpen(true)}
             className="inline-flex items-center space-x-2 px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded-xl text-xs transition duration-150 shadow-sm self-start sm:self-auto cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
@@ -217,6 +216,18 @@ export const Profile: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Xüsusi Təsdiq Modalı */}
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        title="Hesabdan çıxış"
+        message="Cari sessiyanı sonlandırmaq və hesabınızdan çıxış etmək istədiyinizdən əminsiniz?"
+        confirmText="Bəli, çıxış et"
+        cancelText="Geri qayıt"
+        isDestructive={true}
+        onConfirm={confirmLogout}
+        onClose={() => setIsLogoutModalOpen(false)}
+      />
     </div>
   );
 };
