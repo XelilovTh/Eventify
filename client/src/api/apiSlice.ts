@@ -47,11 +47,22 @@ export const apiSlice = createApi({
     getMe: builder.query<{ user: User }, void>({
       query: () => '/auth/me',
     }),
+    updateProfile: builder.mutation<{ message: string; user: User }, { name: string; newPassword?: string }>({
+      query: (data) => ({
+        url: '/auth/profile',
+        method: 'PUT',
+        body: data,
+      }),
+    }),
 
     // ================== EVENTS ==================
     getEvents: builder.query<EventItem[], void>({
       query: () => '/events',
       providesTags: ['Events'],
+    }),
+    getMyRegistrations: builder.query<(EventItem & { registered_at: string })[], void>({
+      query: () => '/events/my-registrations',
+      providesTags: ['Registrations'],
     }),
     getEventById: builder.query<EventItem, number>({
       query: (id) => `/events/${id}`,
@@ -135,7 +146,9 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useGetMeQuery,
+  useUpdateProfileMutation,
   useGetEventsQuery,
+  useGetMyRegistrationsQuery,
   useGetEventByIdQuery,
   useCheckIsRegisteredQuery,
   useRegisterForEventMutation,

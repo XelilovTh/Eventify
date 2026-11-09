@@ -11,6 +11,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { EventForm } from './pages/EventForm';
+import { Profile } from './pages/Profile';
 
 function App() {
   return (
@@ -26,6 +27,16 @@ function App() {
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Daxil olmuş istifadəçi üçün qorunan Profil səhifəsi */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Yalnız Admin üçün qorunan səhifələr (Protected Routes) */}
           <Route

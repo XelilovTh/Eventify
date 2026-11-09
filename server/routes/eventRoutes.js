@@ -32,6 +32,27 @@ router.get('/', (req, res) => {
   });
 });
 
+// Daxil olmuş istifadəçinin qeydiyyatdan keçdiyi tədbirləri gətir
+router.get('/my-registrations', authenticate, (req, res) => {
+  const sql = `
+    SELECT 
+      e.*,
+      r.registered_at,
+      (SELECT COUNT(*) FROM registrations WHERE event_id = e.id) AS registered_count
+    FROM registrations r
+    JOIN events e ON r.event_id = e.id
+    WHERE r.user_id = ?
+    ORDER BY r.registered_at DESC
+  `;
+
+  db.all(sql, [req.user.id], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ message: 'Qeydiyyatlar yüklənərkən xəta baş verdi.' });
+    }
+    res.json(rows);
+  });
+});
+
 // Tək bir tədbirin detallarını gətir
 router.get('/:id', (req, res) => {
   const sql = `

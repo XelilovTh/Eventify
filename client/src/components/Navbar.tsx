@@ -52,16 +52,20 @@ export const Navbar: React.FC = () => {
                   </Link>
                 )}
 
-                {/* İstifadəçi adı və Rol nişanı */}
-                <div className="flex items-center space-x-2 bg-cream/70 border border-borderBeige px-3 py-1.5 rounded-xl">
-                  <User className="w-4 h-4 text-secondary" />
-                  <span className="text-sm font-medium text-primary">{user?.name}</span>
+                {/* Profil Keçidi (İstifadəçi adı və Rol nişanı) */}
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-2 bg-cream/70 hover:bg-cream border border-borderBeige hover:border-accent px-3 py-1.5 rounded-xl transition duration-150 group"
+                  title="Şəxsi Profilə keç"
+                >
+                  <User className="w-4 h-4 text-secondary group-hover:text-primary transition" />
+                  <span className="text-sm font-semibold text-primary">{user?.name}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
                     user?.role === 'admin' ? 'bg-accent text-white' : 'bg-secondary/15 text-secondary'
                   }`}>
                     {user?.role}
                   </span>
-                </div>
+                </Link>
 
                 {/* Çıxış düyməsi */}
                 <button

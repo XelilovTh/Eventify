@@ -34,6 +34,12 @@ export const authSlice = createSlice({
       localStorage.setItem('eventify_user', JSON.stringify(action.payload.user));
     },
 
+    // Profil yenilənəndə istifadəçi məlumatını yeniləmək
+    updateUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      localStorage.setItem('eventify_user', JSON.stringify(action.payload));
+    },
+
     // Çıxış (Logout) zamanı həm Redux-dan, həm yaddaşdan təmizləyirik
     logout: (state) => {
       state.user = null;
@@ -46,5 +52,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, logout, updateUser } = authSlice.actions;
 export default authSlice.reducer;

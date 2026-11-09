@@ -111,4 +111,38 @@ router.get('/me', authenticate, (req, res) => {
   });
 });
 
+// 4. Profil Məlumatlarını Yeniləmək (Ad və ya Şifrə)
+router.put('/profile', authenticate, (req, res) => {
+  const { name, newPassword } = req.body;
+  const userId = req.user.id;
+
+  if (!name) {
+    return res.status(400).json({ message: 'Ad boş ola bilməz.' });
+  }
+
+  if (newPassword && newPassword.trim() !== '') {
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Yeni şifrə ən azı 6 simvoldan ibarət olmalıdır.' });
+    }
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    const sql = `UPDATE users SET name = ?, password = ? WHERE id = ?`;
+    db.run(sql, [name, hashedPassword, userId], function (err) {
+      if (err) return res.status(500).json({ message: 'Profil yenilənərkən xəta baş verdi.' });
+      res.json({
+        message: 'Profil və şifrə uğurla yeniləndi.',
+        user: { id: userId, name, email: req.user.email, role: req.user.role }
+      });
+    });
+  } else {
+    const sql = `UPDATE users SET name = ? WHERE id = ?`;
+    db.run(sql, [name, userId], function (err) {
+      if (err) return res.status(500).json({ message: 'Profil yenilənərkən xəta baş verdi.' });
+      res.json({
+        message: 'Profil adı uğurla yeniləndi.',
+        user: { id: userId, name, email: req.user.email, role: req.user.role }
+      });
+    });
+  }
+});
+
 export default router;
