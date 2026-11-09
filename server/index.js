@@ -24,11 +24,11 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Brauzersiz sorğulara (məs: curl/Postman) və ya icazəli domenlərə icazə veririk
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Brauzersiz sorğulara, localhost və ya CLIENT_URL-ə icazə veririk
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === process.env.CLIENT_URL) {
       callback(null, true);
     } else {
-      callback(new Error('CORS siyasəti tərəfindən bloklandı'));
+      callback(null, false);
     }
   },
   credentials: true

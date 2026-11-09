@@ -227,11 +227,6 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
     registration_deadline = ''
   } = req.body;
 
-  const numCapacity = Number(capacity);
-  if (capacity !== undefined && (isNaN(numCapacity) || numCapacity <= 0)) {
-    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
-  }
-
   if (!title || !description || !date || !location || capacity === undefined) {
     return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
   }
