@@ -9,9 +9,9 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-2 space-y-3">
             <Link to="/" className="inline-flex items-center space-x-2 text-white font-bold text-xl tracking-tight">
-              <span className="w-8 h-8 bg-accent/20 text-accent rounded-lg flex items-center justify-center font-bold text-sm">
-                E
-              </span>
+              <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm">
+                <img src="/logo.svg" alt="Eventify" className="w-full h-full object-contain" />
+              </div>
               <span>Eventify</span>
             </Link>
             <p className="text-cream/70 text-xs sm:text-sm leading-relaxed max-w-sm">

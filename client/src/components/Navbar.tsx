@@ -32,9 +32,7 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center space-x-2.5 text-primary font-bold text-xl tracking-tight">
-            <span className="w-9 h-9 bg-primary text-accent rounded-xl flex items-center justify-center font-extrabold text-base shadow-sm">
-              E
-            </span>
+            <img src="/logo.svg" alt="Eventify" className="w-9 h-9 object-contain" />
             <span className="font-semibold text-primary">Eventify</span>
           </Link>
 
