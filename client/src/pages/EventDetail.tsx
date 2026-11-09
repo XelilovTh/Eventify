@@ -29,6 +29,7 @@ export const EventDetail: React.FC = () => {
   const [cancelRegistration, { isLoading: isCanceling }] = useCancelRegistrationMutation();
 
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -49,10 +50,8 @@ export const EventDetail: React.FC = () => {
     );
   }
 
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-
   const registeredCount = event ? (event.registered_count || 0) : 0;
-  const isEnded = event?.status?.trim().toLowerCase() === 'bitib';
+  const isEnded = Boolean(event?.status && event.status.trim().toLowerCase() === 'bitib');
   const isFull = event ? (registeredCount >= event.capacity) : false;
   const availableSeats = event ? Math.max(0, event.capacity - registeredCount) : 0;
   const isRegistered = regStatus?.isRegistered || false;

@@ -3,8 +3,14 @@
 
 import sqlite3 from 'sqlite3';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const db = new sqlite3.Database('./database.sqlite', (err) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbPath = path.join(__dirname, 'database.sqlite');
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Baza ilə əlaqə xətası:', err.message);
   } else {
