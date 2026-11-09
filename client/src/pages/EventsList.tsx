@@ -284,8 +284,8 @@ export const EventsList: React.FC = () => {
 
                     {/* Sağ Yuxarı Küncdə Status Nişanı */}
                     <div className="absolute top-3 right-3">
-                      <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md ${statusConfig.bg}`}>
-                        <span className={`w-2 h-2 rounded-full ${statusConfig.dot}`}></span>
+                      <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md whitespace-nowrap ${statusConfig.bg}`}>
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusConfig.dot}`}></span>
                         <span>{status}</span>
                       </span>
                     </div>

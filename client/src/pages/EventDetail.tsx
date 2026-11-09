@@ -110,8 +110,9 @@ export const EventDetail: React.FC = () => {
             />
             {event.status && (
               <div className="absolute top-4 right-4">
-                <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/95 text-primary shadow-md">
-                  <span>● {event.status}</span>
+                <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/95 text-primary shadow-md whitespace-nowrap">
+                  <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
+                  <span>{event.status}</span>
                 </span>
               </div>
             )}

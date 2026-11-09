@@ -284,16 +284,16 @@ export const AdminDashboard: React.FC = () => {
                         </td>
 
                         {/* 2. Kateqoriya */}
-                        <td className="px-6 py-4">
-                          <span className="px-3 py-1 bg-cream text-primary border border-borderBeige rounded-full text-xs font-bold">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-3 py-1 bg-cream text-primary border border-borderBeige rounded-full text-xs font-bold whitespace-nowrap">
                             {event.category || 'Konfranslar'}
                           </span>
                         </td>
 
                         {/* 3. Status */}
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`text-xs px-3 py-1 rounded-full font-bold ${
+                            className={`inline-flex items-center space-x-1.5 text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ${
                               event.status === 'Bitib'
                                 ? 'bg-slate-100 text-slate-700'
                                 : event.status === 'Davam edir'
@@ -301,7 +301,16 @@ export const AdminDashboard: React.FC = () => {
                                 : 'bg-emerald-100 text-emerald-800'
                             }`}
                           >
-                            ● {event.status || 'Gələcəkdə'}
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                event.status === 'Bitib'
+                                  ? 'bg-slate-500'
+                                  : event.status === 'Davam edir'
+                                  ? 'bg-amber-600'
+                                  : 'bg-emerald-600'
+                              }`}
+                            />
+                            <span>{event.status || 'Gələcəkdə'}</span>
                           </span>
                         </td>
 
