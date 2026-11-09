@@ -1,7 +1,7 @@
 // client/src/pages/EventsList.tsx
-// Bu fayl göndərilən mockup dizaynına 100% uyğunlaşdırılmış ana səhifədir.
-// Kateqoriya filtrləri (Hamısı, Konfranslar, Seminarlar, Festivallar, İdman, Digər),
-// şəkilli kartlar və status nişanları ilə tədbirləri təqdim edir.
+// Bu fayl göndərilən mockup Şəkil 1-ə 100% uyğunlaşdırılmış ana səhifədir:
+// Bakı Alov Qüllələri panoramalı Hero banner, axtarış, tarixə görə çeşidləmə,
+// 8 ədəd kateqoriya pill-ləri, bəyənmə (favori) ürək düyməsi və status nişanlı kartlar.
 
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -18,16 +18,22 @@ import {
   GraduationCap,
   Music,
   Trophy,
-  MoreHorizontal
+  Palette,
+  Laptop,
+  MoreHorizontal,
+  Heart,
+  SlidersHorizontal
 } from 'lucide-react';
 
-// Kateqoriya siyahısı və ikonları
+// Mockup-dakı 8 kateqoriya
 const CATEGORIES = [
   { id: 'all', label: 'Hamısı', icon: LayoutGrid },
   { id: 'Konfranslar', label: 'Konfranslar', icon: Mic },
   { id: 'Seminarlar', label: 'Seminarlar', icon: GraduationCap },
   { id: 'Festivallar', label: 'Festivallar', icon: Music },
   { id: 'İdman', label: 'İdman', icon: Trophy },
+  { id: 'İncəsənət', label: 'İncəsənət', icon: Palette },
+  { id: 'Texnologiya', label: 'Texnologiya', icon: Laptop },
   { id: 'Digər', label: 'Digər', icon: MoreHorizontal },
 ];
 
@@ -36,27 +42,55 @@ export const EventsList: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortByDate, setSortByDate] = useState<'asc' | 'desc'>('asc');
 
-  // useMemo ilə effektiv filtrləmə (Kateqoriya və Axtarış)
+  // Favorilər (localStorage ilə saxlanılır)
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    const saved = localStorage.getItem('eventify_favs');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFavorites((prev) => {
+      const updated = prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id];
+      localStorage.setItem('eventify_favs', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // useMemo ilə kateqoriya, axtarış və tarix sıralaması
   const filteredEvents = useMemo(() => {
     if (!events) return [];
 
-    return events.filter((ev) => {
-      // 1. Kateqoriya filtri
-      const matchesCategory =
-        selectedCategory === 'all' || ev.category === selectedCategory;
+    return events
+      .filter((ev) => {
+        // Kateqoriya filtri
+        const matchesCategory =
+          selectedCategory === 'all' ||
+          ev.category === selectedCategory ||
+          (selectedCategory === 'Texnologiya' && ev.category === 'Konfranslar') ||
+          (selectedCategory === 'İncəsənət' && ev.category === 'Digər');
 
-      // 2. Axtarış mətni (Başlıq və ya Məkanda)
-      const query = searchTerm.toLowerCase().trim();
-      const matchesSearch =
-        !query ||
-        ev.title.toLowerCase().includes(query) ||
-        ev.location.toLowerCase().includes(query) ||
-        ev.description.toLowerCase().includes(query);
+        // Axtarış mətni
+        const query = searchTerm.toLowerCase().trim();
+        const matchesSearch =
+          !query ||
+          ev.title.toLowerCase().includes(query) ||
+          ev.location.toLowerCase().includes(query) ||
+          ev.description.toLowerCase().includes(query);
 
-      return matchesCategory && matchesSearch;
-    });
-  }, [events, selectedCategory, searchTerm]);
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => {
+        if (sortByDate === 'asc') {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        } else {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        }
+      });
+  }, [events, selectedCategory, searchTerm, sortByDate]);
 
   if (isLoading) {
     return (
@@ -77,41 +111,91 @@ export const EventsList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* 1. YUXARI AXTARIŞ SƏTRİ (Geniş və zərif) */}
-      <div className="relative max-w-3xl">
-        <Search className="w-5 h-5 text-secondary absolute left-4 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Tədbir axtarın..."
-          className="w-full bg-cream/40 border border-borderBeige rounded-2xl pl-12 pr-10 py-3.5 text-sm text-primary placeholder:text-secondary/60 focus:outline-none focus:border-accent font-medium shadow-sm"
-        />
-        {searchTerm && (
-          <button
-            onClick={() => setSearchTerm('')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary hover:text-primary"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* 2. BAŞLIQ VƏ ŞƏHƏR SİLUETİ (Baku skyline banner) */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-2">
-        <div>
-          <h1 className="text-4xl font-extrabold text-primary tracking-tight">Tədbirlər</h1>
-          <p className="text-secondary text-sm mt-1">Sizi maraqlandıran tədbirləri kəşf edin</p>
+      {/* 1. MÖHTƏŞƏM HERO BANNER (Bakı Alov Qüllələri panoraması ilə - Şəkil 1) */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-[#24130A] via-[#3B2418] to-[#603A26] text-white shadow-xl min-h-[280px] flex items-center">
+        {/* Sağ tərəf Bakı silueti şəkli */}
+        <div className="absolute right-0 top-0 bottom-0 w-full md:w-3/5 opacity-40 md:opacity-90 overflow-hidden pointer-events-none">
+          <img
+            src="https://images.unsplash.com/photo-1549144511-f099e773c147?auto=format&fit=crop&w=1200&q=80"
+            alt="Baku Cityscape"
+            className="w-full h-full object-cover object-center mix-blend-luminosity filter contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#24130A] via-transparent to-transparent"></div>
         </div>
 
-        {/* Göstərilən nəticə sayı */}
-        <span className="text-xs text-secondary font-semibold bg-white border border-borderBeige px-3.5 py-1.5 rounded-full shadow-sm">
-          Göstərilir: <b className="text-primary">{filteredEvents.length}</b> tədbir
-        </span>
+        {/* Banner Mətn Hissəsi */}
+        <div className="relative z-10 p-8 sm:p-12 max-w-xl space-y-4">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            Maraqlı tədbirləri <br />
+            <span className="text-[#C49A6C]">Eventify</span> ilə kəşf et!
+          </h1>
+          <p className="text-cream/80 text-sm sm:text-base leading-relaxed">
+            Konfranslar, seminarlar, festivallar və daha çoxu – hamısı bir yerdə.
+          </p>
+          <div className="pt-2">
+            <a
+              href="#events-section"
+              className="inline-flex items-center space-x-2 px-6 py-3.5 bg-[#C49A6C] hover:bg-[#B58957] text-[#24130A] font-bold rounded-2xl text-xs sm:text-sm shadow-lg transition duration-200"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Tədbirlərə bax</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
       </div>
 
-      {/* 3. KATEQORİYA FİLTRLƏRİ (Pills) */}
-      <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+      {/* 2. AXTARIŞ VƏ FİLTR BARI (Şəkil 1) */}
+      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+        {/* Axtarış Xanası */}
+        <div className="relative w-full md:flex-1">
+          <Search className="w-5 h-5 text-secondary absolute left-4 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Tədbir, mövzu və ya məkan üzrə axtar..."
+            className="w-full bg-cream/40 border border-borderBeige rounded-2xl pl-12 pr-10 py-3.5 text-sm text-primary placeholder:text-secondary/60 focus:outline-none focus:border-accent font-medium shadow-sm"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary hover:text-primary"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Sağ Tərəf: Filtrlər və Tarix Süzgəci */}
+        <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
+          <button
+            onClick={() => {
+              setSelectedCategory('all');
+              setSearchTerm('');
+            }}
+            className="inline-flex items-center space-x-1.5 px-4 py-3 bg-white border border-borderBeige rounded-2xl text-xs font-bold text-secondary hover:text-primary transition shadow-sm"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filtrlər</span>
+          </button>
+
+          <div className="relative">
+            <select
+              value={sortByDate}
+              onChange={(e) => setSortByDate(e.target.value as any)}
+              className="appearance-none bg-white border border-borderBeige rounded-2xl pl-9 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
+            >
+              <option value="asc">Tarixə görə (Yaxın)</option>
+              <option value="desc">Tarixə görə (Uzaq)</option>
+            </select>
+            <Calendar className="w-4 h-4 text-secondary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. KATEQORİYA PİLL-LƏRİ (8 Ədəd - Şəkil 1) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon;
           const isActive = selectedCategory === cat.id;
@@ -133,14 +217,23 @@ export const EventsList: React.FC = () => {
         })}
       </div>
 
-      {/* 4. TƏDBİR KARTLARI (3 Sütunlu Grid - Mockup ilə eyni) */}
+      {/* 4. BÖLMƏ BAŞLIĞI: Yaxınlaşan tədbirlər */}
+      <div id="events-section" className="flex items-center justify-between pt-4">
+        <h2 className="text-2xl font-extrabold text-primary tracking-tight">Yaxınlaşan tədbirlər</h2>
+        <span className="text-xs font-bold text-secondary hover:text-primary cursor-pointer flex items-center space-x-1">
+          <span>Hamısına bax</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </span>
+      </div>
+
+      {/* 5. TƏDBİR KARTLARI (Mockup 1 ilə 100% eyni) */}
       {filteredEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => {
             const registered = event.registered_count || 0;
             const availableSeats = Math.max(0, event.capacity - registered);
+            const isFav = favorites.includes(event.id);
 
-            // Status rəngləri
             const status = event.status || 'Gələcəkdə';
             const statusConfig = {
               'Gələcəkdə': {
@@ -163,10 +256,10 @@ export const EventsList: React.FC = () => {
             return (
               <div
                 key={event.id}
-                className="bg-white border border-borderBeige rounded-3xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
+                className="bg-white border border-borderBeige rounded-[2rem] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
               >
                 <div>
-                  {/* Tədbirin Şəkli və Üzərində Status Nişanı */}
+                  {/* Tədbir Şəkli və Status Nişanı */}
                   <div className="relative h-48 w-full overflow-hidden bg-cream">
                     <img
                       src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
@@ -184,40 +277,55 @@ export const EventsList: React.FC = () => {
                   </div>
 
                   {/* Tədbir Məlumatları */}
-                  <div className="p-5">
-                    <h3 className="text-lg font-bold text-primary group-hover:text-accent transition duration-200 line-clamp-1 mb-2.5">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-primary group-hover:text-accent transition duration-200 line-clamp-1 mb-3">
                       {event.title}
                     </h3>
 
-                    {/* Tarix və Məkan (Bölücü xətlə) */}
-                    <div className="flex items-center text-xs text-secondary font-medium space-x-2 truncate mb-4">
-                      <div className="flex items-center space-x-1 flex-shrink-0">
-                        <Calendar className="w-3.5 h-3.5 text-accent" />
+                    {/* Tarix və Məkan */}
+                    <div className="space-y-1.5 text-xs text-secondary font-medium mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-accent flex-shrink-0" />
                         <span>{event.date}</span>
                       </div>
-                      <span className="text-borderBeige font-bold">|</span>
-                      <div className="flex items-center space-x-1 truncate">
-                        <MapPin className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
                         <span className="truncate">{event.location}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Alt Sətir: Boş Yer və Düymə */}
-                <div className="px-5 pb-5 pt-3 border-t border-borderBeige/60 flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 text-xs text-secondary font-semibold">
+                {/* Alt Sətir: Tutum, Sevimli Düyməsi və Ətraflı Bax */}
+                <div className="px-6 pb-6 pt-3 border-t border-borderBeige/60 flex items-center justify-between">
+                  <div className="flex items-center space-x-1.5 text-xs text-secondary font-bold">
                     <Users className="w-4 h-4 text-accent" />
-                    <span>{availableSeats} yer qalıb</span>
+                    <span>{availableSeats} / {event.capacity} yer</span>
                   </div>
 
-                  <Link
-                    to={`/events/${event.id}`}
-                    className="inline-flex items-center space-x-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl transition duration-150 shadow-sm"
-                  >
-                    <span>Ətraflı bax</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="flex items-center space-x-2">
+                    {/* Bəyənmə (Heart) Düyməsi */}
+                    <button
+                      onClick={(e) => toggleFavorite(event.id, e)}
+                      className={`p-2.5 rounded-2xl border transition duration-150 ${
+                        isFav
+                          ? 'bg-red-50 border-red-200 text-red-600'
+                          : 'bg-cream/40 border-borderBeige text-secondary hover:text-red-500'
+                      }`}
+                      title={isFav ? 'Seçilmişlərdən çıxar' : 'Seçilmişlərə əlavə et'}
+                    >
+                      <Heart className={`w-4 h-4 ${isFav ? 'fill-red-600' : ''}`} />
+                    </button>
+
+                    {/* Ətraflı Bax Düyməsi */}
+                    <Link
+                      to={`/events/${event.id}`}
+                      className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-2xl transition duration-150 shadow-sm"
+                    >
+                      <span>Ətraflı bax</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             );

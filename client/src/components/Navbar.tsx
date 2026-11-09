@@ -1,93 +1,158 @@
 // client/src/components/Navbar.tsx
-// Bu fayl bütün səhifələrin yuxarısında görünən naviqasiya panelidir.
-// Ağ fon, tünd qəhvəyi mətnlər və isti bej vurğuları ilə dizayn edilib.
+// Bu fayl mockup Şəkil 1-dəki dizayna tam uyğunlaşdırılmış naviqasiya panelidir:
+// Pill formalı keçidlər (Ana səhifə, Tədbirlər, Mənim qeydiyyatlarım, Seçilmişlər), bildiriş zəngi və istifadəçi profili.
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { logout } from '../features/auth/authSlice';
-import { Calendar, User, LogOut, ShieldAlert } from 'lucide-react';
+import { 
+  Calendar, 
+  Home, 
+  Ticket, 
+  Heart, 
+  Bell, 
+  LogOut, 
+  ShieldAlert, 
+  ChevronDown 
+} from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <nav className="bg-white border-b border-borderBeige sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Loqo */}
-          <Link to="/" className="flex items-center space-x-2 text-primary font-bold text-xl tracking-tight">
-            <span className="p-2 bg-primary rounded-xl text-accent shadow-sm">
-              <Calendar className="w-5 h-5" />
+        <div className="flex items-center justify-between h-20">
+          {/* 1. Loqo (Eventify) */}
+          <Link to="/" className="flex items-center space-x-2.5 text-primary font-extrabold text-2xl tracking-tight">
+            <span className="p-2.5 bg-primary rounded-2xl text-accent shadow-sm flex items-center justify-center">
+              <Calendar className="w-6 h-6" />
             </span>
-            <span>Event<span className="text-accent">ify</span></span>
+            <span className="font-sans">Event<span className="text-accent">ify</span></span>
           </Link>
 
-          {/* Menyu keçidləri */}
-          <div className="flex items-center space-x-4">
+          {/* 2. Əsas Menyu (Pill formalı keçidlər - Şəkil 1) */}
+          <div className="hidden md:flex items-center space-x-2">
             <Link
               to="/"
-              className="text-secondary hover:text-primary px-3 py-2 rounded-lg text-sm font-medium transition"
+              className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
+                isActive('/')
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-secondary hover:text-primary hover:bg-cream/60'
+              }`}
             >
-              Tədbirlər
+              <Home className="w-4 h-4" />
+              <span>Ana səhifə</span>
             </Link>
 
-            {isAuthenticated ? (
+            <Link
+              to="/"
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold text-secondary hover:text-primary hover:bg-cream/60 transition"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Tədbirlər</span>
+            </Link>
+
+            {isAuthenticated && (
               <>
-                {/* Yalnız Admin olduqda Admin Dashboard linki görünür */}
+                <Link
+                  to="/profile"
+                  className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
+                    isActive('/profile')
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-secondary hover:text-primary hover:bg-cream/60'
+                  }`}
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>Mənim qeydiyyatlarım</span>
+                </Link>
+
+                <Link
+                  to="/favorites"
+                  className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
+                    isActive('/favorites')
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-secondary hover:text-primary hover:bg-cream/60'
+                  }`}
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Seçilmişlər</span>
+                </Link>
+
+                {/* Yalnız Admin olduqda Admin Dashboard linki */}
                 {user?.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="flex items-center space-x-1.5 text-primary hover:text-primary-hover bg-accent/20 border border-accent/40 px-3 py-1.5 rounded-xl text-sm font-semibold transition"
+                    className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold bg-accent/20 border border-accent/40 text-primary hover:bg-accent/30 transition"
                   >
                     <ShieldAlert className="w-4 h-4 text-accent" />
                     <span>Admin Panel</span>
                   </Link>
                 )}
+              </>
+            )}
+          </div>
 
-                {/* Profil Keçidi (İstifadəçi adı və Rol nişanı) */}
+          {/* 3. Sağ Tərəf: Bildirişlər və Profil */}
+          <div className="flex items-center space-x-4">
+            {isAuthenticated ? (
+              <>
+                {/* Bildiriş Zəngi */}
+                <button
+                  className="relative p-2.5 text-secondary hover:text-primary bg-cream/50 hover:bg-cream rounded-full transition"
+                  title="Bildirişlər"
+                >
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-accent text-white font-bold text-[10px] rounded-full flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+
+                {/* İstifadəçi Avatarı və Adı */}
                 <Link
                   to="/profile"
-                  className="flex items-center space-x-2 bg-cream/70 hover:bg-cream border border-borderBeige hover:border-accent px-3 py-1.5 rounded-xl transition duration-150 group"
-                  title="Şəxsi Profilə keç"
+                  className="flex items-center space-x-2.5 p-1.5 pl-2 pr-3 bg-cream/40 hover:bg-cream/80 border border-borderBeige rounded-full transition group"
                 >
-                  <User className="w-4 h-4 text-secondary group-hover:text-primary transition" />
-                  <span className="text-sm font-semibold text-primary">{user?.name}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                    user?.role === 'admin' ? 'bg-accent text-white' : 'bg-secondary/15 text-secondary'
-                  }`}>
-                    {user?.role}
+                  <div className="w-8 h-8 rounded-full bg-accent/30 text-primary font-bold flex items-center justify-center text-xs border border-accent/40">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-primary group-hover:text-accent transition">
+                    {user?.name}
                   </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-secondary" />
                 </Link>
 
                 {/* Çıxış düyməsi */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-1 text-secondary hover:text-red-600 px-3 py-2 rounded-lg text-sm font-medium transition"
-                  title="Çıxış et"
+                  className="p-2 text-secondary hover:text-red-600 rounded-full hover:bg-red-50 transition"
+                  title="Çıxış"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Çıxış</span>
                 </button>
               </>
             ) : (
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="text-primary hover:text-accent font-medium px-3 py-2 rounded-lg text-sm transition"
+                  className="text-primary hover:text-accent font-bold px-4 py-2 rounded-xl text-xs transition"
                 >
                   Daxil ol
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md shadow-primary/20"
+                  className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full text-xs font-bold transition shadow-sm"
                 >
                   Qeydiyyat
                 </Link>

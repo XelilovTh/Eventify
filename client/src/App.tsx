@@ -12,6 +12,7 @@ import { Register } from './pages/Register';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { EventForm } from './pages/EventForm';
 import { Profile } from './pages/Profile';
+import { Favorites } from './pages/Favorites';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/favorites" element={<Favorites />} />
 
           {/* Daxil olmuş istifadəçi üçün qorunan Profil səhifəsi */}
           <Route
