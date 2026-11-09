@@ -21,6 +21,9 @@ export interface EventItem {
   date: string;
   location: string;
   capacity: number;
+  category?: string;
+  image_url?: string;
+  status?: 'Gələcəkdə' | 'Davam edir' | 'Bitib';
   created_by?: number;
   registered_count?: number; // Tədbirə indiyədək yazılanların sayı
 }

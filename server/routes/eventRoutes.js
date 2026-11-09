@@ -157,47 +157,73 @@ router.get('/:id/is-registered', authenticate, (req, res) => {
 
 // Yeni tədbir yaratmaq
 router.post('/', authenticate, requireAdmin, (req, res) => {
-  const { title, description, date, location, capacity } = req.body;
+  const { 
+    title, 
+    description, 
+    date, 
+    location, 
+    capacity, 
+    category = 'Konfranslar', 
+    image_url = '', 
+    status = 'Gələcəkdə' 
+  } = req.body;
 
   if (!title || !description || !date || !location || !capacity) {
-    return res.status(400).json({ message: 'Bütün xanaları doldurmaq mütləqdir.' });
+    return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
   }
 
   const sql = `
-    INSERT INTO events (title, description, date, location, capacity, created_by)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO events (title, description, date, location, capacity, category, image_url, status, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.run(sql, [title, description, date, location, Number(capacity), req.user.id], function (err) {
-    if (err) {
-      return res.status(500).json({ message: 'Tədbir yaradılarkən xəta baş verdi.' });
+  db.run(
+    sql,
+    [title, description, date, location, Number(capacity), category, image_url, status, req.user.id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ message: 'Tədbir yaradılarkən xəta baş verdi.' });
+      }
+      res.status(201).json({
+        message: 'Tədbir uğurla yaradıldı.',
+        event: { id: this.lastID, title, description, date, location, capacity: Number(capacity), category, image_url, status }
+      });
     }
-    res.status(201).json({
-      message: 'Tədbir uğurla yaradıldı.',
-      event: { id: this.lastID, title, description, date, location, capacity: Number(capacity) }
-    });
-  });
+  );
 });
 
 // Tədbiri redaktə etmək
 router.put('/:id', authenticate, requireAdmin, (req, res) => {
-  const { title, description, date, location, capacity } = req.body;
+  const { 
+    title, 
+    description, 
+    date, 
+    location, 
+    capacity, 
+    category = 'Konfranslar', 
+    image_url = '', 
+    status = 'Gələcəkdə' 
+  } = req.body;
 
   const sql = `
     UPDATE events
-    SET title = ?, description = ?, date = ?, location = ?, capacity = ?
+    SET title = ?, description = ?, date = ?, location = ?, capacity = ?, category = ?, image_url = ?, status = ?
     WHERE id = ?
   `;
 
-  db.run(sql, [title, description, date, location, Number(capacity), req.params.id], function (err) {
-    if (err) {
-      return res.status(500).json({ message: 'Tədbir yenilənərkən xəta baş verdi.' });
+  db.run(
+    sql,
+    [title, description, date, location, Number(capacity), category, image_url, status, req.params.id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ message: 'Tədbir yenilənərkən xəta baş verdi.' });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ message: 'Tədbir tapılmadı.' });
+      }
+      res.json({ message: 'Tədbir uğurla yeniləndi.' });
     }
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Tədbir tapılmadı.' });
-    }
-    res.json({ message: 'Tədbir uğurla yeniləndi.' });
-  });
+  );
 });
 
 // Tədbiri silmək

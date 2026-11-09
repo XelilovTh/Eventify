@@ -150,8 +150,9 @@ export const AdminDashboard: React.FC = () => {
               <thead className="bg-cream/80 text-xs uppercase font-bold text-primary border-b border-borderBeige">
                 <tr>
                   <th className="px-6 py-4">Tədbir Adı</th>
+                  <th className="px-6 py-4">Kateqoriya</th>
+                  <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Tarix</th>
-                  <th className="px-6 py-4">Məkan</th>
                   <th className="px-6 py-4">Qeydiyyat / Tutum</th>
                   <th className="px-6 py-4 text-right">Əməliyyatlar</th>
                 </tr>
@@ -159,13 +160,28 @@ export const AdminDashboard: React.FC = () => {
               <tbody className="divide-y divide-borderBeige">
                 {eventsLoading ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-8">Yüklənir...</td>
+                    <td colSpan={6} className="text-center py-8">Yüklənir...</td>
                   </tr>
                 ) : events?.map((event) => (
                   <tr key={event.id} className="hover:bg-cream/30 transition">
                     <td className="px-6 py-4 font-bold text-primary">{event.title}</td>
-                    <td className="px-6 py-4 text-secondary">{event.date}</td>
-                    <td className="px-6 py-4 text-secondary">{event.location}</td>
+                    <td className="px-6 py-4">
+                      <span className="px-2.5 py-1 bg-cream text-primary border border-borderBeige rounded-full text-xs font-semibold">
+                        {event.category || 'Konfranslar'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                        event.status === 'Bitib' 
+                          ? 'bg-slate-100 text-slate-700' 
+                          : event.status === 'Davam edir'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {event.status || 'Gələcəkdə'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-secondary text-xs">{event.date}</td>
                     <td className="px-6 py-4">
                       <span className="font-bold text-primary">{event.registered_count || 0}</span>
                       <span className="text-secondary/70"> / {event.capacity}</span>

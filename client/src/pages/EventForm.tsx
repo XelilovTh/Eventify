@@ -30,6 +30,9 @@ export const EventForm: React.FC = () => {
     date: '',
     location: '',
     capacity: 50,
+    category: 'Konfranslar',
+    image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+    status: 'Gələcəkdə' as 'Gələcəkdə' | 'Davam edir' | 'Bitib',
   });
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,6 +45,9 @@ export const EventForm: React.FC = () => {
         date: existingEvent.date,
         location: existingEvent.location,
         capacity: existingEvent.capacity,
+        category: existingEvent.category || 'Konfranslar',
+        image_url: existingEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+        status: (existingEvent.status as any) || 'Gələcəkdə',
       });
     }
   }, [existingEvent]);
@@ -110,6 +116,53 @@ export const EventForm: React.FC = () => {
                 className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                Kateqoriya
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full bg-cream/40 border border-borderBeige rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent text-sm font-medium"
+              >
+                <option value="Konfranslar">Konfranslar</option>
+                <option value="Seminarlar">Seminarlar</option>
+                <option value="Festivallar">Festivallar</option>
+                <option value="İdman">İdman</option>
+                <option value="Digər">Digər</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                Status
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                className="w-full bg-cream/40 border border-borderBeige rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent text-sm font-medium"
+              >
+                <option value="Gələcəkdə">● Gələcəkdə</option>
+                <option value="Davam edir">● Davam edir</option>
+                <option value="Bitib">● Bitib</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+              Şəkil URL-i (Poster)
+            </label>
+            <input
+              type="url"
+              value={formData.image_url}
+              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+              placeholder="https://images.unsplash.com/..."
+              className="w-full bg-cream/40 border border-borderBeige rounded-xl px-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm font-medium"
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

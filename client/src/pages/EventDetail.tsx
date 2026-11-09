@@ -84,8 +84,34 @@ export const EventDetail: React.FC = () => {
         <span>Bütün Tədbirlər</span>
       </Link>
 
-      <div className="bg-white border border-borderBeige rounded-3xl p-8 shadow-xl">
-        {/* Status və Tutum */}
+      <div className="bg-white border border-borderBeige rounded-3xl overflow-hidden shadow-xl">
+        {/* Böyük Tədbir Posteri */}
+        {event.image_url && (
+          <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-cream">
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+            {event.status && (
+              <div className="absolute top-4 right-4">
+                <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/95 text-primary shadow-md">
+                  <span>● {event.status}</span>
+                </span>
+              </div>
+            )}
+            {event.category && (
+              <div className="absolute top-4 left-4">
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-md">
+                  {event.category}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="p-8">
+          {/* Status və Tutum */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <span
             className={`text-xs font-bold px-3.5 py-1.5 rounded-full ${
@@ -199,6 +225,7 @@ export const EventDetail: React.FC = () => {
               {isRegistering ? 'Yazılır...' : 'Tədbirə Qeydiyyatdan Keç'}
             </button>
           )}
+        </div>
         </div>
       </div>
     </div>
