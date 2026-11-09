@@ -16,7 +16,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware-lər
-app.use(cors()); // Frontend-in sorğu göndərməsinə icazə verir
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Brauzersiz sorğulara (məs: curl/Postman) və ya icazəli domenlərə icazə veririk
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS siyasəti tərəfindən bloklandı'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json()); // Gələn JSON sorğularını oxuyur (req.body)
 
 // Verilənlər bazasını inisializasiya edirik

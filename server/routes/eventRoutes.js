@@ -147,26 +147,38 @@ router.post('/:id/register', authenticate, (req, res) => {
       return res.status(400).json({ message: 'Bu tədbir üçün son qeydiyyat tarixi artıq bitib. Qeydiyyat qəbul olunmur.' });
     }
 
-    // 4-cü Addım: Yer limitini yoxlayırıq
+    // 4-cü Addım: İlkin yer limitini yoxlayırıq
     if (event.current_registrations >= event.capacity) {
       return res.status(400).json({ message: 'Təəssüf ki, tədbirdə boş yer qalmayıb.' });
     }
 
-    // 5-ci Addım: İstifadəçinin əvvəlcədən yazılıb-yazılmadığını yoxlayırıq
-    const checkSql = `SELECT * FROM registrations WHERE user_id = ? AND event_id = ?`;
-    db.get(checkSql, [userId, eventId], (err, existing) => {
-      if (existing) {
-        return res.status(400).json({ message: 'Siz artıq bu tədbirə qeydiyyatdan keçmisiniz.' });
+    // 5-ci Addım: Atomik Qeydiyyat (Race condition və overbooking qarşısını 100% alır)
+    // Şərt: Yalnız həmin an bazadakı qeydiyyat sayı tutumdan azdırsa sətir əlavə olunur
+    const atomicInsertSql = `
+      INSERT INTO registrations (user_id, event_id)
+      SELECT ?, ?
+      WHERE (
+        SELECT COUNT(*) FROM registrations WHERE event_id = ?
+      ) < (
+        SELECT capacity FROM events WHERE id = ?
+      )
+    `;
+
+    db.run(atomicInsertSql, [userId, eventId, eventId, eventId], function (insertErr) {
+      if (insertErr) {
+        // Əgər bazada UNIQUE(user_id, event_id) constraint pozularsa
+        if (insertErr.message && insertErr.message.includes('UNIQUE')) {
+          return res.status(400).json({ message: 'Siz artıq bu tədbirə qeydiyyatdan keçmisiniz.' });
+        }
+        return res.status(500).json({ message: 'Qeydiyyat zamanı xəta baş verdi.' });
       }
 
-      // 4-cü Addım: Qeydiyyatı bazaya yazırıq
-      const insertSql = `INSERT INTO registrations (user_id, event_id) VALUES (?, ?)`;
-      db.run(insertSql, [userId, eventId], function (err) {
-        if (err) {
-          return res.status(500).json({ message: 'Qeydiyyat zamanı xəta baş verdi.' });
-        }
-        res.status(201).json({ message: 'Tədbirə uğurla qeydiyyatdan keçdiniz!' });
-      });
+      // Əgər dəyişiklik edilməyibsə (0 sətir), deməli paralel sorğu zamanı yer dolub
+      if (this.changes === 0) {
+        return res.status(400).json({ message: 'Təəssüf ki, tədbirdə boş yer qalmayıb.' });
+      }
+
+      res.status(201).json({ message: 'Tədbirə uğurla qeydiyyatdan keçdiniz!' });
     });
   });
 });
@@ -215,8 +227,18 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
     registration_deadline = ''
   } = req.body;
 
-  if (!title || !description || !date || !location || !capacity) {
+  const numCapacity = Number(capacity);
+  if (capacity !== undefined && (isNaN(numCapacity) || numCapacity <= 0)) {
+    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
+  }
+
+  if (!title || !description || !date || !location || capacity === undefined) {
     return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
+  }
+
+  const numCapacity = Number(capacity);
+  if (isNaN(numCapacity) || numCapacity <= 0) {
+    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
   }
 
   const sql = `
@@ -252,6 +274,11 @@ router.put('/:id', authenticate, requireAdmin, (req, res) => {
     status = 'Gələcəkdə',
     registration_deadline = ''
   } = req.body;
+
+  const numCapacity = Number(capacity);
+  if (capacity !== undefined && (isNaN(numCapacity) || numCapacity <= 0)) {
+    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
+  }
 
   const sql = `
     UPDATE events

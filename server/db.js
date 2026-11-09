@@ -15,6 +15,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('Baza ilə əlaqə xətası:', err.message);
   } else {
     console.log('SQLite verilənlər bazasına uğurla qoşuldu.');
+    // SQLite-da xarici açarları (Foreign Keys & ON DELETE CASCADE) aktivləşdiririk
+    db.run('PRAGMA foreign_keys = ON;', (pragmaErr) => {
+      if (pragmaErr) {
+        console.error('PRAGMA foreign_keys xətası:', pragmaErr);
+      } else {
+        console.log('SQLite Foreign Keys uğurla aktivləşdirildi (PRAGMA foreign_keys = ON).');
+      }
+    });
   }
 });
 

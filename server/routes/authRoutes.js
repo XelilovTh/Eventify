@@ -9,20 +9,31 @@ import db from '../db.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
 
 // 1. Qeydiyyat (Register)
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Sadə validasiya: Boş sahə olmamalıdır
+  // 1. Validasiya: Boş sahə olmamalıdır
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Zəhmət olmasa bütün xanaları doldurun.' });
   }
 
+  // 2. E-poçt formatı validasiyası
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.' });
+  }
+
+  // 3. Şifrə uzunluğu yoxlanışı
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Şifrə ən azı 6 simvoldan ibarət olmalıdır.' });
+  }
+
   // E-poçtun artıq mövcud olub-olmadığını yoxlayırıq
   const checkSql = `SELECT * FROM users WHERE email = ?`;
-  db.get(checkSql, [email.toLowerCase()], (err, user) => {
+  db.get(checkSql, [email.toLowerCase()], async (err, user) => {
     if (err) {
       return res.status(500).json({ message: 'Baza xətası baş verdi.' });
     }
@@ -30,30 +41,33 @@ router.post('/register', (req, res) => {
       return res.status(400).json({ message: 'Bu e-poçt ünvanı artıq qeydiyyatdan keçib.' });
     }
 
-    // Şifrəni bcrypt ilə hash-ləyirik (təhlükəsizlik üçün)
-    const saltRounds = 10;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    try {
+      // Şifrəni asinxron bcrypt ilə hash-ləyirik (Event Loop bloklanmır)
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const insertSql = `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')`;
-    db.run(insertSql, [name, email.toLowerCase(), hashedPassword], function (err) {
-      if (err) {
-        return res.status(500).json({ message: 'İstifadəçi yaradılarkən xəta baş verdi.' });
-      }
+      const insertSql = `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')`;
+      db.run(insertSql, [name, email.toLowerCase(), hashedPassword], function (err) {
+        if (err) {
+          return res.status(500).json({ message: 'İstifadəçi yaradılarkən xəta baş verdi.' });
+        }
 
-      // Yeni istifadəçi üçün JWT token hazırlayırıq
-      const newUserId = this.lastID;
-      const token = jwt.sign(
-        { id: newUserId, email: email.toLowerCase(), role: 'user' },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
+        // Yeni istifadəçi üçün JWT token hazırlayırıq
+        const newUserId = this.lastID;
+        const token = jwt.sign(
+          { id: newUserId, email: email.toLowerCase(), role: 'user' },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
 
-      res.status(201).json({
-        message: 'Qeydiyyat uğurla tamamlandı.',
-        token,
-        user: { id: newUserId, name, email: email.toLowerCase(), role: 'user' }
+        res.status(201).json({
+          message: 'Qeydiyyat uğurla tamamlandı.',
+          token,
+          user: { id: newUserId, name, email: email.toLowerCase(), role: 'user' }
+        });
       });
-    });
+    } catch (hashErr) {
+      res.status(500).json({ message: 'Şifrələmə zamanı xəta baş verdi.' });
+    }
   });
 });
 
@@ -66,7 +80,7 @@ router.post('/login', (req, res) => {
   }
 
   const findSql = `SELECT * FROM users WHERE email = ?`;
-  db.get(findSql, [email.toLowerCase()], (err, user) => {
+  db.get(findSql, [email.toLowerCase()], async (err, user) => {
     if (err) {
       return res.status(500).json({ message: 'Baza xətası baş verdi.' });
     }
@@ -74,29 +88,33 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ message: 'E-poçt və ya şifrə yanlışdır.' });
     }
 
-    // Şifrənin doğruluğunu yoxlayırıq
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: 'E-poçt və ya şifrə yanlışdır.' });
-    }
-
-    // Uğurlu giriş - JWT token generasiya edirik
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      message: 'Uğurla daxil oldunuz.',
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+    try {
+      // Şifrənin doğruluğunu asinxron yoxlayırıq
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: 'E-poçt və ya şifrə yanlışdır.' });
       }
-    });
+
+      // Uğurlu giriş - JWT token generasiya edirik
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        message: 'Uğurla daxil oldunuz.',
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
+    } catch (compErr) {
+      res.status(500).json({ message: 'Giriş zamanı xəta baş verdi.' });
+    }
   });
 });
 
@@ -112,7 +130,7 @@ router.get('/me', authenticate, (req, res) => {
 });
 
 // 4. Profil Məlumatlarını Yeniləmək (Ad və ya Şifrə)
-router.put('/profile', authenticate, (req, res) => {
+router.put('/profile', authenticate, async (req, res) => {
   const { name, newPassword } = req.body;
   const userId = req.user.id;
 
@@ -124,15 +142,19 @@ router.put('/profile', authenticate, (req, res) => {
     if (newPassword.length < 6) {
       return res.status(400).json({ message: 'Yeni şifrə ən azı 6 simvoldan ibarət olmalıdır.' });
     }
-    const hashedPassword = bcrypt.hashSync(newPassword, 10);
-    const sql = `UPDATE users SET name = ?, password = ? WHERE id = ?`;
-    db.run(sql, [name, hashedPassword, userId], function (err) {
-      if (err) return res.status(500).json({ message: 'Profil yenilənərkən xəta baş verdi.' });
-      res.json({
-        message: 'Profil və şifrə uğurla yeniləndi.',
-        user: { id: userId, name, email: req.user.email, role: req.user.role }
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const sql = `UPDATE users SET name = ?, password = ? WHERE id = ?`;
+      db.run(sql, [name, hashedPassword, userId], function (err) {
+        if (err) return res.status(500).json({ message: 'Profil yenilənərkən xəta baş verdi.' });
+        res.json({
+          message: 'Profil və şifrə uğurla yeniləndi.',
+          user: { id: userId, name, email: req.user.email, role: req.user.role }
+        });
       });
-    });
+    } catch (e) {
+      return res.status(500).json({ message: 'Şifrələmə xətası baş verdi.' });
+    }
   } else {
     const sql = `UPDATE users SET name = ? WHERE id = ?`;
     db.run(sql, [name, userId], function (err) {

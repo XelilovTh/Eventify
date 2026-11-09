@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
 
 // 1. İstifadəçinin daxil olduğunu (tokenin etibarlı olduğunu) yoxlayan middleware
 export const authenticate = (req, res, next) => {

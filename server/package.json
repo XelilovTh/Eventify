@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "node --check index.js db.js routes/authRoutes.js routes/eventRoutes.js routes/adminRoutes.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
