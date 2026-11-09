@@ -43,6 +43,7 @@ export const initDB = () => {
         category TEXT DEFAULT 'Konfranslar',
         image_url TEXT,
         status TEXT DEFAULT 'Gələcəkdə',
+        registration_deadline TEXT,
         created_by INTEGER,
         FOREIGN KEY (created_by) REFERENCES users (id)
       )
@@ -52,7 +53,8 @@ export const initDB = () => {
     const alterColumns = [
       `ALTER TABLE events ADD COLUMN category TEXT DEFAULT 'Konfranslar'`,
       `ALTER TABLE events ADD COLUMN image_url TEXT`,
-      `ALTER TABLE events ADD COLUMN status TEXT DEFAULT 'Gələcəkdə'`
+      `ALTER TABLE events ADD COLUMN status TEXT DEFAULT 'Gələcəkdə'`,
+      `ALTER TABLE events ADD COLUMN registration_deadline TEXT`
     ];
     alterColumns.forEach(sql => {
       db.run(sql, () => {}); // Mövcuddursa səssizcə keçir

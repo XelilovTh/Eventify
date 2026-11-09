@@ -8,7 +8,7 @@ import {
   useUpdateEventMutation, 
   useGetEventByIdQuery 
 } from '../api/apiSlice';
-import { Calendar, MapPin, Users, FileText, ArrowLeft, Save } from 'lucide-react';
+import { Calendar, MapPin, Users, FileText, ArrowLeft, Save, Clock } from 'lucide-react';
 
 export const EventForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +33,7 @@ export const EventForm: React.FC = () => {
     category: 'Konfranslar',
     image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
     status: 'Gələcəkdə' as 'Gələcəkdə' | 'Davam edir' | 'Bitib',
+    registration_deadline: '',
   });
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,6 +49,7 @@ export const EventForm: React.FC = () => {
         category: existingEvent.category || 'Konfranslar',
         image_url: existingEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
         status: (existingEvent.status as any) || 'Gələcəkdə',
+        registration_deadline: existingEvent.registration_deadline || '',
       });
     }
   }, [existingEvent]);
@@ -185,19 +187,35 @@ export const EventForm: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
-                Tutum (Maksimum Yer)
+                Son Qeydiyyat Tarixi
               </label>
               <div className="relative">
-                <Users className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Clock className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="number"
-                  required
-                  min={1}
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
+                  type="text"
+                  value={formData.registration_deadline}
+                  onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
+                  placeholder="Məs: 2026-11-19 23:59 (Boşsa tədbir tarixi götürülür)"
                   className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
                 />
               </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+              Tutum (Maksimum Yer)
+            </label>
+            <div className="relative">
+              <Users className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="number"
+                required
+                min={1}
+                value={formData.capacity}
+                onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
+                className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
+              />
             </div>
           </div>
 

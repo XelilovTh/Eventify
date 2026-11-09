@@ -10,8 +10,9 @@ import {
   useCancelRegistrationMutation 
 } from '../api/apiSlice';
 import { useAppSelector } from '../app/hooks';
-import { Calendar, MapPin, Users, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckCircle, AlertCircle, ArrowLeft, Clock } from 'lucide-react';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { isDatePassed } from '../utils/dateUtils';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,13 +52,23 @@ export const EventDetail: React.FC = () => {
   }
 
   const registeredCount = event ? (event.registered_count || 0) : 0;
-  const isEnded = Boolean(event?.status && event.status.trim().toLowerCase() === 'bitib');
+  const statusLower = (event?.status || '').trim().toLowerCase();
+  const isEnded = statusLower === 'bitib';
+  const isOngoing = statusLower === 'davam edir';
+
+  // Son qeydiyyat tarixi yoxlanışı
+  const deadlineStr = event?.registration_deadline || event?.date || '';
+  const isDeadlinePassed = isDatePassed(deadlineStr);
+
+  // Qeydiyyatın bağlı olma vəziyyəti
+  const isRegistrationClosed = isEnded || isOngoing || isDeadlinePassed;
+
   const isFull = event ? (registeredCount >= event.capacity) : false;
   const availableSeats = event ? Math.max(0, event.capacity - registeredCount) : 0;
   const isRegistered = regStatus?.isRegistered || false;
 
   const handleRegister = async () => {
-    if (isEnded) return;
+    if (isRegistrationClosed) return;
     setNotification(null);
     try {
       const res = await registerForEvent(eventId).unwrap();
@@ -121,12 +132,24 @@ export const EventDetail: React.FC = () => {
             className={`text-xs font-bold px-3.5 py-1.5 rounded-full ${
               isEnded
                 ? 'bg-slate-200 text-slate-700'
+                : isOngoing
+                ? 'bg-amber-100 text-amber-800'
+                : isDeadlinePassed
+                ? 'bg-rose-100 text-rose-800'
                 : isFull
                 ? 'bg-red-100 text-red-700'
                 : 'bg-emerald-100 text-emerald-800'
             }`}
           >
-            {isEnded ? 'Tədbir artıq başa çatıb' : isFull ? 'Bütün yerlər dolub' : `${availableSeats} boş yer qalıb`}
+            {isEnded
+              ? 'Tədbir artıq başa çatıb'
+              : isOngoing
+              ? 'Tədbir hazırda davam edir'
+              : isDeadlinePassed
+              ? 'Son qeydiyyat tarixi bitib'
+              : isFull
+              ? 'Bütün yerlər dolub'
+              : `${availableSeats} boş yer qalıb`}
           </span>
 
           <div className="text-sm text-secondary">
@@ -138,8 +161,8 @@ export const EventDetail: React.FC = () => {
           {event.title}
         </h1>
 
-        {/* Tarix və Məkan bloku */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 p-4 bg-cream/60 border border-borderBeige rounded-2xl">
+        {/* Tarix, Son Qeydiyyat və Məkan bloku */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 p-4 bg-cream/60 border border-borderBeige rounded-2xl">
           <div className="flex items-center space-x-3 text-primary">
             <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
               <Calendar className="w-5 h-5 text-accent" />
@@ -147,6 +170,18 @@ export const EventDetail: React.FC = () => {
             <div>
               <p className="text-xs text-secondary uppercase font-semibold">Tarix və Saat</p>
               <p className="text-sm font-bold">{event.date}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 text-primary">
+            <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
+              <Clock className="w-5 h-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-xs text-secondary uppercase font-semibold">Son Qeydiyyat</p>
+              <p className={`text-sm font-bold ${isDeadlinePassed ? 'text-red-600' : 'text-primary'}`}>
+                {event.registration_deadline || event.date}
+              </p>
             </div>
           </div>
 
@@ -207,6 +242,36 @@ export const EventDetail: React.FC = () => {
                 className="w-full sm:w-auto px-6 py-3.5 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
               >
                 Tədbir artıq başa çatıb (Qeydiyyat bağlıdır)
+              </button>
+            </div>
+          ) : isOngoing ? (
+            <div className="flex items-center space-x-2">
+              {isRegistered && (
+                <span className="inline-flex items-center space-x-1.5 text-amber-700 text-xs font-bold mr-2">
+                  <CheckCircle className="w-4 h-4 text-amber-600" />
+                  <span>Qeydiyyatınız mövcuddur</span>
+                </span>
+              )}
+              <button
+                disabled
+                className="w-full sm:w-auto px-6 py-3.5 bg-amber-100 text-amber-800 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
+              >
+                Tədbir artıq başlayıb (Qeydiyyat dayandırılıb)
+              </button>
+            </div>
+          ) : isDeadlinePassed ? (
+            <div className="flex items-center space-x-2">
+              {isRegistered && (
+                <span className="inline-flex items-center space-x-1.5 text-rose-700 text-xs font-bold mr-2">
+                  <CheckCircle className="w-4 h-4 text-rose-600" />
+                  <span>Qeydiyyatınız mövcuddur</span>
+                </span>
+              )}
+              <button
+                disabled
+                className="w-full sm:w-auto px-6 py-3.5 bg-rose-100 text-rose-800 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
+              >
+                Son qeydiyyat tarixi bitib (Qeydiyyat bağlıdır)
               </button>
             </div>
           ) : !isAuthenticated ? (

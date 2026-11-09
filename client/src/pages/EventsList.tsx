@@ -24,6 +24,7 @@ import {
   Heart,
   SlidersHorizontal
 } from 'lucide-react';
+import { parseAzerbaijaniDate } from '../utils/dateUtils';
 
 // Mockup-dakı 8 kateqoriya
 const CATEGORIES = [
@@ -36,38 +37,6 @@ const CATEGORIES = [
   { id: 'Texnologiya', label: 'Texnologiya', icon: Laptop },
   { id: 'Digər', label: 'Digər', icon: MoreHorizontal },
 ];
-
-// Azərbaycan dilindəki tarixləri (məs: "15 Noyabr 2026, 10:00") millisaniyəyə çevirən dəqiq funksiya
-const parseAzerbaijaniDate = (dateStr: string): number => {
-  if (!dateStr) return 0;
-  const months: { [key: string]: number } = {
-    yanvar: 0, fevral: 1, mart: 2, aprel: 3, may: 4, iyun: 5,
-    iyul: 6, avqust: 7, sentyabr: 8, oktyabr: 9, noyabr: 10, dekabr: 11
-  };
-
-  const parsedDirect = Date.parse(dateStr);
-  if (!isNaN(parsedDirect)) return parsedDirect;
-
-  const clean = dateStr.replace(/,/g, '').replace(/–/g, '-');
-  const parts = clean.split(' ').filter(Boolean);
-  if (parts.length >= 3) {
-    const day = parseInt(parts[0], 10);
-    const monthName = parts[1].toLowerCase();
-    const year = parseInt(parts[2], 10);
-    let hours = 0;
-    let minutes = 0;
-    if (parts[3] && parts[3].includes(':')) {
-      const timeParts = parts[3].split(':');
-      hours = parseInt(timeParts[0], 10) || 0;
-      minutes = parseInt(timeParts[1], 10) || 0;
-    }
-
-    if (months[monthName] !== undefined && !isNaN(day) && !isNaN(year)) {
-      return new Date(year, months[monthName], day, hours, minutes).getTime();
-    }
-  }
-  return 0;
-};
 
 export const EventsList: React.FC = () => {
   const { data: events, isLoading, error } = useGetEventsQuery();
