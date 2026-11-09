@@ -74,13 +74,13 @@ export const initDB = () => {
       }
     });
 
-    // İlkin nümunə tədbirlər (Əgər tədbirlər cədvəli boşdursa)
+    // İlkin nümunə tədbirlər (Əgər tədbirlər cədvəlində say azdırsa)
     db.get(`SELECT COUNT(*) as count FROM events`, (err, row) => {
-      if (row && row.count === 0) {
+      if (row && row.count < 3) {
         const sampleEvents = [
           [
             'Müasir Veb Texnologiyaları Konfransı 2026',
-            'React, TypeScript, Node.js və müasir arxitekturalar haqqında geniş müzakirə.',
+            'React, TypeScript, Node.js və müasir mikroxidmət arxitekturaları haqqında ölkənin aparıcı mütəxəssislərinin çıxışları.',
             '2026-12-15 10:00',
             'Bakı, Heydər Əliyev Mərkəzi',
             50,
@@ -88,10 +88,66 @@ export const initDB = () => {
           ],
           [
             'Süni İntellekt və Gələcəyin İxtisasları',
-            'Maşın öyrənməsi və süni intellektin tətbiq sahələrinə baxış seminarı.',
-            '2026-12-22 14:00',
+            'Maşın öyrənməsi, generativ süni intellekt və böyük dil modellərinin (LLM) biznesə tətbiqi seminarı.',
+            '2026-12-20 14:00',
             'Bakı, ADA Universiteti',
             30,
+            1
+          ],
+          [
+            'UI/UX Dizayn və Rəqəmsal Məhsul İnkişafı',
+            'Figma dizayn sistemləri, mobil interfeyslər və müasir istifadəçi təcrübəsinin araşdırılması üzrə intensiv vorkşop.',
+            '2026-12-25 15:30',
+            'Bakı, Landmark Plaza',
+            40,
+            1
+          ],
+          [
+            'Kibertəhlükəsizlik Zirvəsi: Müasir Təhdidlər',
+            'Şəbəkə təhlükəsizliyi, etik hakerlik, zəifliklərin aşkarlanması və məlumatların qorunması strategiyaları.',
+            '2027-01-10 11:00',
+            'Bakı, JW Marriott Absheron',
+            120,
+            1
+          ],
+          [
+            'Startap İnkubasiyası və İnvestisiya İmkanları',
+            'Erkən mərhələdə olan texnoloji startaplar üçün vençur fondları və mələk investorlarla təkbətək görüşlər.',
+            '2027-01-18 16:00',
+            'Bakı, Sabah Hub İnnovasiya Mərkəzi',
+            60,
+            1
+          ],
+          [
+            'Mobil Tətbiq İnkişafı: Flutter & React Native',
+            'Cross-platform mobil tətbiqlərin yaradılması, animasiyalar, yerli cihaz imkanları və App Store/Play Store buraxılışı.',
+            '2027-02-05 13:00',
+            'Bakı Mühəndislik Universiteti',
+            45,
+            1
+          ],
+          [
+            'Bulud Texnologiyaları və DevOps Praktikaları',
+            'Docker, Kubernetes orkestrasiyası, CI/CD boru kəmərləri və AWS bulud infrastrukturunun qurulması.',
+            '2027-02-14 10:30',
+            'Bakı, Hyatt Regency',
+            70,
+            1
+          ],
+          [
+            'Data Elmi və Böyük Verilənlər (Big Data) Forumu',
+            'Python ilə statistik modelləşdirmə, SQL optimizasiyası və böyük məlumat bazalarının analitikası.',
+            '2027-02-28 14:00',
+            'Bakı, Park İnn Hotel',
+            80,
+            1
+          ],
+          [
+            'İT Mütəxəssisləri üçün Şəbəkələşmə (Networking) Gecəsi',
+            'Təcrübəli proqramçılar, mühəndislər və İT şirkət rəhbərləri ilə qeyri-rəsmi ünsiyyət və karyera imkanları axşamı.',
+            '2027-03-08 19:00',
+            'Bakı, Çıraq Plaza',
+            50,
             1
           ]
         ];
@@ -103,7 +159,7 @@ export const initDB = () => {
 
         sampleEvents.forEach((ev) => stmt.run(ev));
         stmt.finalize(() => {
-          console.log('İlkin nümunə tədbirlər bazaya əlavə edildi.');
+          console.log('9 ədəd zəngin nümunə tədbir bazaya əlavə edildi.');
         });
       }
     });
