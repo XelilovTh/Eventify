@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Mail, MapPin, Heart } from 'lucide-react';
+import { Calendar, Mail, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
               <span>Event<span className="text-accent">ify</span></span>
             </Link>
             <p className="text-cream/70 text-xs sm:text-sm leading-relaxed max-w-sm">
-              Texnologiya, biznes, incəsənət və təhsil sahəsində ən son və maraqlı tədbirləri kəşf edin, yerinizi vaxtında bron edin.
+              Texnologiya, biznes, incəsənət və təhsil sahəsində ən son və maraqlı tədbirləri kəşf edin.
             </p>
             <div className="flex items-center space-x-4 text-xs text-cream/60 pt-2">
               <span className="flex items-center space-x-1.5">
@@ -67,11 +67,7 @@ export const Footer: React.FC = () => {
 
         {/* Alt Müəlliflik Hüququ Zolağı */}
         <div className="pt-8 border-t border-cream/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream/60">
-          <p>© {new Date().getFullYear()} Eventify. Bütün hüquqlar qorunur.</p>
-          <div className="flex items-center space-x-1 text-cream/50">
-            <span>Rahatlıq və sürət üçün hazırlandı</span>
-            <Heart className="w-3.5 h-3.5 text-accent fill-accent ml-1" />
-          </div>
+          <p>© {new Date().getFullYear()} Eventify.</p>
         </div>
       </div>
     </footer>
