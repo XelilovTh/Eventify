@@ -134,6 +134,8 @@ export const EventForm: React.FC = () => {
                 <option value="Seminarlar">Seminarlar</option>
                 <option value="Festivallar">Festivallar</option>
                 <option value="İdman">İdman</option>
+                <option value="İncəsənət">İncəsənət</option>
+                <option value="Texnologiya">Texnologiya</option>
                 <option value="Digər">Digər</option>
               </select>
             </div>
