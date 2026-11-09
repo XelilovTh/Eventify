@@ -1,4 +1,8 @@
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from './app/hooks';
+import { useGetMeQuery } from './api/apiSlice';
+import { logout, updateUser } from './features/auth/authSlice';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -13,9 +17,34 @@ import { Profile } from './pages/Profile';
 import { Favorites } from './pages/Favorites';
 import { MyRegistrations } from './pages/MyRegistrations';
 
+function AuthVerifier() {
+  const token = useAppSelector((state) => state.auth.token);
+  const dispatch = useAppDispatch();
+  const { data, error } = useGetMeQuery(undefined, {
+    skip: !token,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
+
+  useEffect(() => {
+    if (data?.user) {
+      dispatch(updateUser(data.user));
+    }
+  }, [data, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(logout());
+    }
+  }, [error, dispatch]);
+
+  return null;
+}
+
 function App() {
   return (
     <div className="min-h-screen bg-cream text-primary flex flex-col font-sans selection:bg-accent selection:text-white">
+      <AuthVerifier />
       <ScrollToTop />
       <Navbar />
 

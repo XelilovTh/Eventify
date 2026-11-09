@@ -35,7 +35,12 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
     const url = typeof args === 'string' ? args : args.url;
     if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
       api.dispatch(logout());
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+      if (
+        typeof window !== 'undefined' &&
+        (window.location.pathname.startsWith('/profile') ||
+          window.location.pathname.startsWith('/my-registrations') ||
+          window.location.pathname.startsWith('/admin'))
+      ) {
         window.location.href = '/login';
       }
     }
