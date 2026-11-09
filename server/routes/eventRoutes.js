@@ -101,12 +101,17 @@ router.post('/:id/register', authenticate, (req, res) => {
       return res.status(404).json({ message: 'Tədbir tapılmadı.' });
     }
 
-    // 2-ci Addım: Yer limitini yoxlayırıq
+    // 2-ci Addım: Tədbirin bitib-bitmədiyini yoxlayırıq
+    if (event.status === 'Bitib') {
+      return res.status(400).json({ message: 'Bu tədbir artıq başa çatıb. Qeydiyyat mümkün deyil.' });
+    }
+
+    // 3-cü Addım: Yer limitini yoxlayırıq
     if (event.current_registrations >= event.capacity) {
       return res.status(400).json({ message: 'Təəssüf ki, tədbirdə boş yer qalmayıb.' });
     }
 
-    // 3-cü Addım: İstifadəçinin əvvəlcədən yazılıb-yazılmadığını yoxlayırıq
+    // 4-cü Addım: İstifadəçinin əvvəlcədən yazılıb-yazılmadığını yoxlayırıq
     const checkSql = `SELECT * FROM registrations WHERE user_id = ? AND event_id = ?`;
     db.get(checkSql, [userId, eventId], (err, existing) => {
       if (existing) {

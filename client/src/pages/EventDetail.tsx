@@ -11,6 +11,7 @@ import {
 } from '../api/apiSlice';
 import { useAppSelector } from '../app/hooks';
 import { Calendar, MapPin, Users, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,12 +49,16 @@ export const EventDetail: React.FC = () => {
     );
   }
 
-  const registeredCount = event.registered_count || 0;
-  const isFull = registeredCount >= event.capacity;
-  const availableSeats = Math.max(0, event.capacity - registeredCount);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const registeredCount = event ? (event.registered_count || 0) : 0;
+  const isEnded = event?.status === 'Bitib';
+  const isFull = event ? (registeredCount >= event.capacity) : false;
+  const availableSeats = event ? Math.max(0, event.capacity - registeredCount) : 0;
   const isRegistered = regStatus?.isRegistered || false;
 
   const handleRegister = async () => {
+    if (isEnded) return;
     setNotification(null);
     try {
       const res = await registerForEvent(eventId).unwrap();
@@ -63,7 +68,7 @@ export const EventDetail: React.FC = () => {
     }
   };
 
-  const handleCancel = async () => {
+  const handleConfirmCancel = async () => {
     setNotification(null);
     try {
       const res = await cancelRegistration(eventId).unwrap();
@@ -115,12 +120,14 @@ export const EventDetail: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <span
             className={`text-xs font-bold px-3.5 py-1.5 rounded-full ${
-              isFull
+              isEnded
+                ? 'bg-slate-200 text-slate-700'
+                : isFull
                 ? 'bg-red-100 text-red-700'
                 : 'bg-emerald-100 text-emerald-800'
             }`}
           >
-            {isFull ? 'Bütün yerlər dolub' : `${availableSeats} boş yer qalıb`}
+            {isEnded ? 'Tədbir artıq başa çatıb' : isFull ? 'Bütün yerlər dolub' : `${availableSeats} boş yer qalıb`}
           </span>
 
           <div className="text-sm text-secondary">
@@ -188,7 +195,22 @@ export const EventDetail: React.FC = () => {
             <span>Hazırda <b className="text-primary">{registeredCount}</b> nəfər qeydiyyatdan keçib</span>
           </div>
 
-          {!isAuthenticated ? (
+          {isEnded ? (
+            <div className="flex items-center space-x-2">
+              {isRegistered && (
+                <span className="inline-flex items-center space-x-1.5 text-slate-600 text-xs font-bold mr-2">
+                  <CheckCircle className="w-4 h-4 text-slate-500" />
+                  <span>Bu tədbirdə iştirak etmisiniz</span>
+                </span>
+              )}
+              <button
+                disabled
+                className="w-full sm:w-auto px-6 py-3.5 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
+              >
+                Tədbir artıq başa çatıb (Qeydiyyat bağlıdır)
+              </button>
+            </div>
+          ) : !isAuthenticated ? (
             <Link
               to="/login"
               className="w-full sm:w-auto px-6 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-center text-sm shadow-md shadow-primary/20 transition"
@@ -202,9 +224,9 @@ export const EventDetail: React.FC = () => {
                 <span>Qeydiyyatdan keçmisiniz</span>
               </span>
               <button
-                onClick={handleCancel}
+                onClick={() => setIsCancelModalOpen(true)}
                 disabled={isCanceling}
-                className="w-full sm:w-auto px-5 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl text-sm font-semibold transition disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
               >
                 {isCanceling ? 'Ləğv edilir...' : 'Qeydiyyatı Ləğv Et'}
               </button>
@@ -220,7 +242,7 @@ export const EventDetail: React.FC = () => {
             <button
               onClick={handleRegister}
               disabled={isRegistering}
-              className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm shadow-md shadow-primary/20 transition disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm shadow-md shadow-primary/20 transition disabled:opacity-50 cursor-pointer"
             >
               {isRegistering ? 'Yazılır...' : 'Tədbirə Qeydiyyatdan Keç'}
             </button>
@@ -228,6 +250,18 @@ export const EventDetail: React.FC = () => {
         </div>
         </div>
       </div>
+
+      {/* Xüsusi Təsdiq Modalı */}
+      <ConfirmModal
+        isOpen={isCancelModalOpen}
+        title="Qeydiyyatı Ləğv Et"
+        message={`"${event.title}" tədbirindən qeydiyyatınızı ləğv etmək istədiyinizdən əminsiniz?`}
+        confirmText="Bəli, ləğv et"
+        cancelText="Geri"
+        isDestructive={true}
+        onConfirm={handleConfirmCancel}
+        onClose={() => setIsCancelModalOpen(false)}
+      />
     </div>
   );
 };
