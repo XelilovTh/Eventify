@@ -58,9 +58,9 @@ export const Navbar: React.FC = () => {
             {isAuthenticated && (
               <>
                 <Link
-                  to="/profile"
+                  to="/my-registrations"
                   className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
-                    isActive('/profile')
+                    isActive('/my-registrations')
                       ? 'bg-primary text-white shadow-sm'
                       : 'text-secondary hover:text-primary hover:bg-cream/60'
                   }`}

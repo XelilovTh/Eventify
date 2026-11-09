@@ -13,6 +13,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { EventForm } from './pages/EventForm';
 import { Profile } from './pages/Profile';
 import { Favorites } from './pages/Favorites';
+import { MyRegistrations } from './pages/MyRegistrations';
 
 function App() {
   return (
@@ -30,12 +31,20 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/favorites" element={<Favorites />} />
 
-          {/* Daxil olmuş istifadəçi üçün qorunan Profil səhifəsi */}
+          {/* Daxil olmuş istifadəçi üçün qorunan Profil və Qeydiyyatlar səhifələri */}
           <Route
             path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-registrations"
+            element={
+              <ProtectedRoute>
+                <MyRegistrations />
               </ProtectedRoute>
             }
           />
