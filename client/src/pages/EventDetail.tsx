@@ -52,7 +52,7 @@ export const EventDetail: React.FC = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const registeredCount = event ? (event.registered_count || 0) : 0;
-  const isEnded = event?.status === 'Bitib';
+  const isEnded = event?.status?.trim().toLowerCase() === 'bitib';
   const isFull = event ? (registeredCount >= event.capacity) : false;
   const availableSeats = event ? Math.max(0, event.capacity - registeredCount) : 0;
   const isRegistered = regStatus?.isRegistered || false;

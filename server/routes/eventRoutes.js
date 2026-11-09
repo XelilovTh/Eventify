@@ -102,7 +102,7 @@ router.post('/:id/register', authenticate, (req, res) => {
     }
 
     // 2-ci Addım: Tədbirin bitib-bitmədiyini yoxlayırıq
-    if (event.status === 'Bitib') {
+    if (event.status && event.status.trim().toLowerCase() === 'bitib') {
       return res.status(400).json({ message: 'Bu tədbir artıq başa çatıb. Qeydiyyat mümkün deyil.' });
     }
 
