@@ -1,6 +1,3 @@
-// server/db.js
-// Bu fayl SQLite verilənlər bazasını yaradır və kateqoriya, şəkil və status sütunları ilə tədbirləri idarə edir.
-
 import sqlite3 from 'sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'path';
@@ -12,23 +9,14 @@ const dbPath = path.join(__dirname, 'database.sqlite');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
-    console.error('Baza ilə əlaqə xətası:', err.message);
+    console.error('Baza xətası:', err.message);
   } else {
-    console.log('SQLite verilənlər bazasına uğurla qoşuldu.');
-    // SQLite-da xarici açarları (Foreign Keys & ON DELETE CASCADE) aktivləşdiririk
-    db.run('PRAGMA foreign_keys = ON;', (pragmaErr) => {
-      if (pragmaErr) {
-        console.error('PRAGMA foreign_keys xətası:', pragmaErr);
-      } else {
-        console.log('SQLite Foreign Keys uğurla aktivləşdirildi (PRAGMA foreign_keys = ON).');
-      }
-    });
+    db.run('PRAGMA foreign_keys = ON;');
   }
 });
 
 export const initDB = () => {
   db.serialize(() => {
-    // 1. İstifadəçilər cədvəli
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +27,6 @@ export const initDB = () => {
       )
     `);
 
-    // 2. Tədbirlər cədvəli (Yeni: category, image_url, status əlavə edildi)
     db.run(`
       CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +44,6 @@ export const initDB = () => {
       )
     `);
 
-    // Əgər köhnə cədvəldə bu sütunlar yoxdursa əlavə edək (migration)
     const alterColumns = [
       `ALTER TABLE events ADD COLUMN category TEXT DEFAULT 'Konfranslar'`,
       `ALTER TABLE events ADD COLUMN image_url TEXT`,
@@ -65,10 +51,9 @@ export const initDB = () => {
       `ALTER TABLE events ADD COLUMN registration_deadline TEXT`
     ];
     alterColumns.forEach(sql => {
-      db.run(sql, () => {}); // Mövcuddursa səssizcə keçir
+      db.run(sql, () => {});
     });
 
-    // 3. Qeydiyyatlar cədvəli
     db.run(`
       CREATE TABLE IF NOT EXISTS registrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,15 +66,13 @@ export const initDB = () => {
       )
     `);
 
-    // Standart Admin
     const checkAdminSql = `SELECT * FROM users WHERE email = ?`;
     db.get(checkAdminSql, ['admin@eventify.com'], (err, row) => {
       if (!row) {
         const hashedPassword = bcrypt.hashSync('admin123', 10);
         db.run(
           `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)`,
-          ['Admin', 'admin@eventify.com', hashedPassword, 'admin'],
-          () => console.log('Admin hesabı yaradıldı: admin@eventify.com / admin123')
+          ['Admin', 'admin@eventify.com', hashedPassword, 'admin']
         );
       }
     });

@@ -1,7 +1,3 @@
-// client/src/pages/AdminDashboard.tsx
-// Bu fayl Admin üçün idarəetmə mərkəzidir (Dashboard).
-// Qəhvəyi tonlar, krem fon, statistik kartlar, axtarış və cədvəllər ilə təchiz olunub.
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -61,7 +57,6 @@ export const AdminDashboard: React.FC = () => {
     onConfirm: () => {},
   });
 
-  // Axtarış süzgəci - Tədbirlər
   const filteredEvents = useMemo(() => {
     if (!events) return [];
     if (!searchTerm.trim()) return events;
@@ -75,7 +70,6 @@ export const AdminDashboard: React.FC = () => {
     );
   }, [events, searchTerm]);
 
-  // Axtarış süzgəci - İstifadəçilər
   const filteredUsers = useMemo(() => {
     if (!users) return [];
     if (!searchTerm.trim()) return users;
@@ -91,8 +85,8 @@ export const AdminDashboard: React.FC = () => {
   const handleDeleteEvent = (id: number, title: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Tədbiri Sil',
-      message: `"${title}" tədbirini sistemdən həmişəlik silmək istədiyinizdən əminsiniz?`,
+      title: 'Tədbiri sil',
+      message: `"${title}" tədbirini silmək istəyirsiniz?`,
       onConfirm: () => deleteEvent(id),
     });
   };
@@ -100,8 +94,8 @@ export const AdminDashboard: React.FC = () => {
   const handleDeleteUser = (id: number, name: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'İstifadəçini Sil',
-      message: `"${name}" adlı istifadəçi hesabını sistemdən silmək istədiyinizdən əminsiniz?`,
+      title: 'İstifadəçini sil',
+      message: `"${name}" adlı istifadəçi hesabını silmək istəyirsiniz?`,
       onConfirm: () => deleteUser(id),
     });
   };
@@ -109,8 +103,8 @@ export const AdminDashboard: React.FC = () => {
   const handleRemoveAttendee = (userId: number, userName: string) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Qeydiyyatı Sil',
-      message: `"${userName}" adlı istifadəçini bu tədbirin qeydiyyat siyahısından çıxarmaq istəyirsiniz?`,
+      title: 'Qeydiyyatı sil',
+      message: `"${userName}" adlı istifadəçini bu tədbirin siyahısından çıxarmaq istəyirsiniz?`,
       onConfirm: () => {
         if (selectedEventForAttendees !== null) {
           removeAttendee({ eventId: selectedEventForAttendees, userId });
@@ -121,7 +115,6 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* 1. Başlıq və Yeni Tədbir Düyməsi */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center space-x-2">
@@ -130,7 +123,7 @@ export const AdminDashboard: React.FC = () => {
             </span>
             <h1 className="text-3xl font-extrabold text-primary tracking-tight">Admin Dashboard</h1>
           </div>
-          <p className="text-secondary text-xs sm:text-sm mt-1">Sistemin idarə edilməsi, tədbirlər və istifadəçilər</p>
+          <p className="text-secondary text-xs sm:text-sm mt-1">Tədbirlər və istifadəçilərin idarə edilməsi</p>
         </div>
 
         <Link
@@ -138,11 +131,10 @@ export const AdminDashboard: React.FC = () => {
           className="inline-flex items-center space-x-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white font-bold rounded-2xl text-xs shadow-md shadow-primary/20 transition"
         >
           <Plus className="w-4 h-4" />
-          <span>Yeni Tədbir Yarat</span>
+          <span>Yeni tədbir</span>
         </Link>
       </div>
 
-      {/* 2. Statistik Kartlar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-white border border-borderBeige rounded-3xl p-6 flex items-center space-x-4 shadow-sm">
           <div className="p-4 bg-accent/20 text-accent rounded-2xl">
@@ -175,7 +167,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Tablar və Axtarış Paneli */}
       <div className="bg-white border border-borderBeige rounded-3xl p-6 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-borderBeige/60 pb-4">
           <div className="flex space-x-2">
@@ -190,7 +181,7 @@ export const AdminDashboard: React.FC = () => {
                   : 'bg-cream/60 hover:bg-cream text-secondary hover:text-primary'
               }`}
             >
-              Tədbirlərin İdarəsi ({events?.length || 0})
+              Tədbirlər ({events?.length || 0})
             </button>
             <button
               onClick={() => {
@@ -207,7 +198,6 @@ export const AdminDashboard: React.FC = () => {
             </button>
           </div>
 
-          {/* Cədvəldaxili Canlı Axtarış */}
           <div className="relative max-w-xs w-full">
             <Search className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -228,7 +218,6 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 4. Tədbirlər Cədvəli */}
         {activeTab === 'events' && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-secondary">
@@ -242,7 +231,7 @@ export const AdminDashboard: React.FC = () => {
                   <th className="px-6 py-4 text-right">Əməliyyatlar</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-borderBeige/60">
+              <tbody className="divide-y border-borderBeige/60">
                 {eventsLoading ? (
                   <tr>
                     <td colSpan={6} className="text-center py-10">Yüklənir...</td>
@@ -260,7 +249,6 @@ export const AdminDashboard: React.FC = () => {
 
                     return (
                       <tr key={event.id} className="hover:bg-cream/20 transition">
-                        {/* 1. Tədbir Thumbnail və Başlıq */}
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3.5">
                             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-cream border border-borderBeige flex-shrink-0">
@@ -287,14 +275,12 @@ export const AdminDashboard: React.FC = () => {
                           </div>
                         </td>
 
-                        {/* 2. Kateqoriya */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-3 py-1 bg-cream text-primary border border-borderBeige rounded-full text-xs font-bold whitespace-nowrap">
                             {event.category || 'Konfranslar'}
                           </span>
                         </td>
 
-                        {/* 3. Status */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center space-x-1.5 text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ${
@@ -306,76 +292,74 @@ export const AdminDashboard: React.FC = () => {
                             }`}
                           >
                             <span
-                              className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              className={`w-1.5 h-1.5 rounded-full ${
                                 event.status === 'Bitib'
-                                  ? 'bg-slate-500'
+                                  ? 'bg-slate-400'
                                   : event.status === 'Davam edir'
-                                  ? 'bg-amber-600'
-                                  : 'bg-emerald-600'
+                                  ? 'bg-amber-500'
+                                  : 'bg-emerald-500'
                               }`}
                             />
                             <span>{event.status || 'Gələcəkdə'}</span>
                           </span>
                         </td>
 
-                        {/* 4. Tarix və Son Qeydiyyat */}
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap text-xs">
                           <div className="space-y-1">
-                            <p className="text-xs font-bold text-primary">{event.date}</p>
+                            <div className="flex items-center space-x-1.5 text-primary font-bold">
+                              <Calendar className="w-3.5 h-3.5 text-accent" />
+                              <span>{event.date}</span>
+                            </div>
                             {event.registration_deadline && (
-                              <p
-                                className={`text-[11px] flex items-center space-x-1 ${
-                                  deadlinePassed ? 'text-red-600 font-semibold' : 'text-secondary/70'
-                                }`}
-                              >
-                                <Clock className="w-3 h-3 flex-shrink-0" />
+                              <div className={`flex items-center space-x-1.5 font-medium ${deadlinePassed ? 'text-rose-600' : 'text-secondary/70'}`}>
+                                <Clock className="w-3 h-3" />
                                 <span>Son: {event.registration_deadline}</span>
-                              </p>
+                              </div>
                             )}
                           </div>
                         </td>
 
-                        {/* 5. Doluluq Zolağı (Progress bar) */}
-                        <td className="px-6 py-4">
-                          <div className="w-32 space-y-1.5">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="w-36 space-y-1.5">
                             <div className="flex justify-between text-xs font-bold">
-                              <span className="text-primary">{registered}</span>
-                              <span className="text-secondary/70">/ {event.capacity} ({percent}%)</span>
+                              <span className="text-primary">{registered} / {event.capacity}</span>
+                              <span className="text-secondary">{percent}%</span>
                             </div>
-                            <div className="w-full bg-cream h-2 rounded-full overflow-hidden border border-borderBeige">
+                            <div className="w-full bg-cream rounded-full h-2 overflow-hidden border border-borderBeige/60">
                               <div
-                                className={`h-full ${barColor} rounded-full transition-all duration-300`}
+                                className={`h-2 rounded-full transition-all duration-300 ${barColor}`}
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
                           </div>
                         </td>
 
-                        {/* 6. Əməliyyatlar */}
-                        <td className="px-6 py-4 text-right space-x-2">
-                          <button
-                            onClick={() => setSelectedEventForAttendees(event.id)}
-                            className="p-2 bg-cream hover:bg-secondary/20 text-secondary hover:text-primary rounded-xl transition cursor-pointer"
-                            title="Qeydiyyatçılar"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end space-x-1.5">
+                            <button
+                              onClick={() => setSelectedEventForAttendees(event.id)}
+                              className="p-2 bg-cream hover:bg-borderBeige/60 text-primary rounded-xl transition cursor-pointer"
+                              title="Qeydiyyatdan keçənlər"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
 
-                          <Link
-                            to={`/admin/events/edit/${event.id}`}
-                            className="inline-block p-2 bg-cream hover:bg-secondary/20 text-secondary hover:text-primary rounded-xl transition cursor-pointer"
-                            title="Redaktə et"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </Link>
+                            <Link
+                              to={`/admin/events/${event.id}/edit`}
+                              className="p-2 bg-accent/20 hover:bg-accent/30 text-primary rounded-xl transition"
+                              title="Redaktə et"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Link>
 
-                          <button
-                            onClick={() => handleDeleteEvent(event.id, event.title)}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition cursor-pointer"
-                            title="Sil"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                            <button
+                              onClick={() => handleDeleteEvent(event.id, event.title)}
+                              className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition cursor-pointer"
+                              title="Tədbiri sil"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -386,7 +370,6 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* 5. İstifadəçilər Cədvəli */}
         {activeTab === 'users' && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-secondary">
@@ -438,11 +421,10 @@ export const AdminDashboard: React.FC = () => {
                                 : 'bg-cream text-secondary border border-borderBeige'
                             }`}
                           >
-                            {isAdmin ? '👑 Admin' : 'İstifadəçi'}
+                            {isAdmin ? 'Admin' : 'İstifadəçi'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          {/* Admin özünü və digər adminləri təsadüfən silə bilməz */}
                           {!isAdmin && !isSelf && (
                             <button
                               onClick={() => handleDeleteUser(u.id, u.name)}
@@ -463,13 +445,12 @@ export const AdminDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* 6. Qeydiyyatçılar Modalı */}
       {selectedEventForAttendees !== null && (
         <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white border border-borderBeige rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-4 animate-scale-up">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-bold text-primary">Qeydiyyatdan Keçənlər</h3>
+                <h3 className="text-lg font-bold text-primary">Qeydiyyatdan keçənlər</h3>
                 <p className="text-xs text-secondary mt-0.5">Tədbirə qeydiyyatdan keçmiş istifadəçilərin siyahısı</p>
               </div>
               <button
@@ -504,13 +485,13 @@ export const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-8 text-secondary text-sm bg-cream/40 rounded-2xl border border-borderBeige">
-                Bu tədbirə hələ heç kim qeydiyyatdan keçməyib.
+                Bu tədbirə heç kim qeydiyyatdan keçməyib.
               </div>
             )}
 
             <button
               onClick={() => setSelectedEventForAttendees(null)}
-              className="w-full py-3 bg-cream hover:bg-borderBeige text-primary font-bold rounded-xl text-xs transition"
+              className="w-full py-3 bg-cream hover:bg-borderBeige text-primary font-bold rounded-xl text-xs transition cursor-pointer"
             >
               Bağla
             </button>
@@ -518,7 +499,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* 7. Xüsusi Təsdiq Modalı */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         title={confirmModal.title}

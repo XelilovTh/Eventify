@@ -1,7 +1,3 @@
-// client/src/App.tsx
-// Bu fayl tətbiqin əsas marşrutlaşdırma (routing) mərkəzidir.
-// Krem fon, tünd qəhvəyi əsas mətn və isti bej vurğuları ilə səhifələri birləşdirir.
-
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -20,23 +16,17 @@ import { MyRegistrations } from './pages/MyRegistrations';
 function App() {
   return (
     <div className="min-h-screen bg-cream text-primary flex flex-col font-sans selection:bg-accent selection:text-white">
-      {/* Səhifə keçidlərində yuxarı fırlanma */}
       <ScrollToTop />
-
-      {/* Ümumi Naviqasiya Paneli */}
       <Navbar />
 
-      {/* Səhifə Məzmunu */}
       <main className="flex-grow">
         <Routes>
-          {/* Hər kəs üçün açıq səhifələr */}
           <Route path="/" element={<EventsList />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/favorites" element={<Favorites />} />
 
-          {/* Daxil olmuş istifadəçi üçün qorunan Profil və Qeydiyyatlar səhifələri */}
           <Route
             path="/profile"
             element={
@@ -54,7 +44,6 @@ function App() {
             }
           />
 
-          {/* Yalnız Admin üçün qorunan səhifələr (Protected Routes) */}
           <Route
             path="/admin"
             element={
@@ -80,12 +69,10 @@ function App() {
             }
           />
 
-          {/* Naməlum ünvanlar avtomatik ana səhifəyə yönləndirilir */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
-      {/* Müasir və Real Layihə Formatında Footer */}
       <Footer />
     </div>
   );

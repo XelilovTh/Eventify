@@ -1,7 +1,3 @@
-// client/src/hooks/useFavorites.ts
-// Bütün komponentlər (EventsList, Favorites, Profile, Navbar) üçün vahid,
-// reaktiv və localStorage ilə tam sinxronlaşan bəyənilən tədbirlər (favorilər) hook-u.
-
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'eventify_favs';
@@ -19,7 +15,6 @@ const getStoredFavorites = (): number[] => {
 export const useFavorites = () => {
   const [favorites, setFavorites] = useState<number[]>(getStoredFavorites);
 
-  // Digər pəncərə və ya komponentlərdə baş verən dəyişiklikləri dərhal sinxronlaşdırırıq
   useEffect(() => {
     const handleUpdate = () => {
       setFavorites(getStoredFavorites());
@@ -38,10 +33,9 @@ export const useFavorites = () => {
     setFavorites(newFavs);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newFavs));
-    } catch (e) {
-      console.error('Favorilər saxlanılarkən xəta:', e);
+    } catch {
+      // ignore
     }
-    // Eyni pəncərədəki digər komponentləri (Navbar, Profile və s.) dərhal xəbərdar edirik
     window.dispatchEvent(new Event(SYNC_EVENT));
   }, []);
 

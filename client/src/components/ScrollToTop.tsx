@@ -1,6 +1,3 @@
-// client/src/components/ScrollToTop.tsx
-// Səhifələr arasında keçid edərkən ekranı avtomatik ən yuxarıya sürüşdürən komponent.
-
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 

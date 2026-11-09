@@ -1,16 +1,11 @@
-// server/routes/adminRoutes.js
-// Bu fayl Admin Dashboard üçün ümumi statistikaları və istifadəçilərin idarə olunmasını (CRUD) təmin edir.
-
 import express from 'express';
 import db from '../db.js';
 import { authenticate, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Bütün admin endpoint-ləri həm login (authenticate), həm də adminlik (requireAdmin) tələb edir
 router.use(authenticate, requireAdmin);
 
-// 1. Dashboard Statistika Rəqəmləri (Cəmi tədbirlər, istifadəçilər, qeydiyyatlar)
 router.get('/stats', (req, res) => {
   const stats = {};
 
@@ -28,18 +23,16 @@ router.get('/stats', (req, res) => {
   });
 });
 
-// 2. Bütün istifadəçilərin siyahısı
 router.get('/users', (req, res) => {
   const sql = `SELECT id, name, email, role FROM users ORDER BY id DESC`;
   db.all(sql, [], (err, rows) => {
     if (err) {
-      return res.status(500).json({ message: 'İstifadəçilər gətirilərkən xəta baş verdi.' });
+      return res.status(500).json({ message: 'İstifadəçilər yüklənərkən xəta baş verdi.' });
     }
     res.json(rows);
   });
 });
 
-// 3. İstifadəçini silmək (Admin özünü silə bilməz)
 router.delete('/users/:id', (req, res) => {
   const targetId = Number(req.params.id);
 
@@ -55,7 +48,7 @@ router.delete('/users/:id', (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı.' });
     }
-    res.json({ message: 'İstifadəçi uğurla silindi.' });
+    res.json({ message: 'İstifadəçi silindi.' });
   });
 });
 

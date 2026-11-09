@@ -1,7 +1,3 @@
-// client/src/components/ErrorBoundary.tsx
-// Tətbiqin hər hansı hissəsində baş verən gözlənilməz render xətalarını
-// tutaraq istifadəçiyə zərif və anlaşıqlı Azərbaycan dilində xəta ekranı göstərən Error Boundary.
-
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -21,11 +17,11 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, errorMessage: error.message || 'Gözlənilməz xəta baş verdi' };
+    return { hasError: true, errorMessage: error.message || 'Xəta baş verdi' };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary tərəfindən tutulan xəta:', error, errorInfo);
+    console.error('Xəta:', error, errorInfo);
   }
 
   private handleReload = () => {
@@ -35,18 +31,18 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-cream flex items-center justify-center p-6 text-primary">
-          <div className="max-w-md w-full bg-white border border-borderBeige rounded-3xl p-8 text-center shadow-xl space-y-6">
-            <div className="inline-flex p-4 bg-red-100 text-red-700 rounded-2xl shadow-sm">
-              <AlertTriangle className="w-10 h-10" />
+        <div className="min-h-screen bg-cream flex items-center justify-center p-4 text-primary">
+          <div className="max-w-md w-full bg-white border border-borderBeige rounded-2xl p-6 text-center shadow-lg space-y-4">
+            <div className="inline-flex p-3 bg-red-100 text-red-600 rounded-xl">
+              <AlertTriangle className="w-8 h-8" />
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black tracking-tight text-primary">
-                Gözlənilməz Xəta Baş Verdi
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-primary">
+                Xəta baş verdi
               </h2>
-              <p className="text-secondary text-sm leading-relaxed">
-                Tətbiqin icrası zamanı xəta yarandı. Zəhmət olmasa səhifəni yeniləyin və ya yenidən cəhd edin.
+              <p className="text-secondary text-xs sm:text-sm">
+                Səhifəni yeniləyərək yenidən cəhd edin.
               </p>
             </div>
 
@@ -58,10 +54,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <button
               onClick={this.handleReload}
-              className="inline-flex items-center space-x-2 px-6 py-3.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-2xl transition shadow-md shadow-primary/20"
+              className="inline-flex items-center space-x-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl transition shadow-sm"
             >
               <RefreshCw className="w-4 h-4" />
-              <span>Səhifəni Yeniləyin</span>
+              <span>Yenilə</span>
             </button>
           </div>
         </div>

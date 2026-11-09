@@ -1,7 +1,3 @@
-// client/src/main.tsx
-// Bu fayl React tətbiqinin kök faylıdır.
-// Bütün tətbiqi Redux Store (Provider) və React Router (BrowserRouter) ilə əhatə edir.
-
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

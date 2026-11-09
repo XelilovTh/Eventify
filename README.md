@@ -1,85 +1,80 @@
 # Eventify — Tədbir İdarəetmə Sistemi
 
-Diplom layihəsi üçün hazırlanmış müasir və tam funksional tədbir idarəetmə veb platforması.
+Tədbirlərin təşkili, idarə edilməsi və istifadəçilərin qeydiyyatı üçün veb tətbiqi. Diplom layihəsi çərçivəsində hazırlanıb.
 
 ---
 
-## 🛠 Texnoloji Stack
+## Texnologiyalar
 
-### Frontend:
-* **Kitabxana:** React 19 + TypeScript
-* **Qurucu:** Vite
-* **Stilləndirmə:** Tailwind CSS (Fərdi qəhvəyi/krem palitrası)
-* **Qlobal State & API Sorğuları:** Redux Toolkit & RTK Query
-* **Naviqasiya:** React Router DOM v7
-* **İkonlar:** Lucide React
+### Frontend
+- React 19 və TypeScript (Vite ilə yığılıb)
+- Tailwind CSS
+- Redux Toolkit və RTK Query (vəziyyət idarəsi və API sorğuları)
+- React Router DOM v7
+- Lucide React ikonları
 
-### Backend:
-* **Server Mühiti:** Node.js + Express.js (ES Modules)
-* **Verilənlər Bazası:** SQLite3 (Lokal fayl əsaslı, əlavə server sazlaması tələb etmir)
-* **Autentifikasiya:** JSON Web Token (JWT)
-* **Şifrələmə:** bcryptjs (Şifrələrin təhlükəsiz hash-lənməsi)
+### Backend
+- Node.js və Express (ES Modules)
+- SQLite3 (əlavə konfiqurasiya tələb etməyən lokal verilənlər bazası)
+- JSON Web Token (JWT) və bcryptjs
 
 ---
 
-## 🎨 Dizayn Palitrası
+## Dizayn və İnterfeys
 
-* **Tünd qəhvəyi (`#3B2418`):** Əsas rəng (başlıqlar və əsas düymələr)
-* **Karamel (`#795548`):** İkinci dərəcəli rəng (təsvirlər və köməkçi mətnlər)
-* **İsti bej (`#C49A6C`):** Vurğu rəngi (loqo və status nişanları)
-* **Krem (`#F5EFE6`):** Arxa fon
-* **Ağ (`#FFFFFF`):** Kartlar və modallar
+İnterfeys qəhvəyi və bej tonlarında hazırlanıb. Əsas elementlər üçün tünd qəhvəyi (#3B2418), vurğular üçün isti bej (#C49A6C) və fon üçün açıq krem (#F5EFE6) rənglərindən istifadə edilib.
 
 ---
 
-## 🚀 Layihənin Quraşdırılması və İşə Salınması
+## Quraşdırma və İşə Salma
 
-### 1. Repozitoriyanı klonlayın:
+### 1. Repozitoriyanı yükləyin:
 ```bash
 git clone https://github.com/XelilovTh/Eventify.git
 cd Eventify
 ```
 
-### 2. Backend-i işə salın:
+### 2. Backend serverini işə salın:
 ```bash
 cd server
 npm install
+npm run seed   # ilkin tədbir məlumatlarını bazaya yazmaq üçün
 npm run dev
 ```
-*Backend `http://localhost:5000` ünvanında işə düşəcək.*
+Server `http://localhost:5000` ünvanında işləyir.
 
-### 3. Frontend-i işə salın (Ayrı terminalda):
+### 3. Frontend-i işə salın (ayrı terminalda):
 ```bash
 cd client
 npm install
 npm run dev
 ```
-*Frontend `http://localhost:5173` ünvanında açılacaq.*
+Tətbiq brauzerdə `http://localhost:5173` ünvanında açılır.
 
 ---
 
-## 🔐 Standart İstifadəçi Hesabları
+## Standart İstifadəçi Hesabları
 
-* **Admin Hesabı:**
-  * E-poçt: `admin@eventify.com`
-  * Şifrə: `admin123`
-  *(Bütün tədbirləri yaratmaq, redaktə etmək, silmək və qeydiyyatçıları idarə etmək hüququ var)*
+- **Admin hesabı:**
+  - E-poçt: `admin@eventify.com`
+  - Şifrə: `admin123`
+  *(Tədbirlərin yaradılması, redaktəsi, silinməsi və iştirakçıların idarəsi)*
 
-* **Adi İstifadəçi:**
-  * Saytın "Qeydiyyat" səhifəsindən istənilən ad və e-poçtla yeni hesab yarada bilərsiniz.
+- **İstifadəçi hesabı:**
+  - Qeydiyyat səhifəsindən istənilən e-poçtla yeni hesab yaradıla bilər.
 
 ---
 
-## 📋 Əsas Funksionallıqlar
+## Funksiyalar
 
-1. **İstifadəçi Autentifikasiyası:** Qeydiyyat, Giriş və JWT token əsaslı sessiya idarəsi.
-2. **Tədbirlər Siyahısı və Detalları:** Real vaxt rejimində boş yerlərin sayının hesablanması.
-3. **Qeydiyyat Qaydaları (Biznes Məntiqi):**
-   * Tutum (capacity) dolduqda qeydiyyat avtomatik bağlanır.
-   * Eyni istifadəçi bir tədbirə iki dəfə yazıla bilməz (SQLite `UNIQUE` məhdudiyyəti).
-   * İstifadəçi istədiyi an qeydiyyatını ləğv edə bilər.
-4. **Admin Dashboard:**
-   * Cəmi tədbir, istifadəçi və qeydiyyat sayının statistikası.
-   * Tədbirlər üzrə tam CRUD (Yarat / Oxu / Yenilə / Sil).
-   * Hər tədbirə yazılan şəxslərin siyahısına baxış və istənilən qeydiyyatçını silmək imkanı.
-   * İstifadəçilərin idarəsi və silinməsi.
+1. **Autentifikasiya:** Qeydiyyat, giriş və JWT əsaslı sessiya idarəsi.
+2. **Tədbirlər:** Tarix və kateqoriya üzrə axtarış, filtr və çeşidləmə.
+3. **Qeydiyyat sistemi:**
+   - Tutum limiti yoxlanışı (yer dolduqda qeydiyyat bloklanır).
+   - Təkrar qeydiyyatın qarşısının alınması.
+   - İstifadəçinin öz qeydiyyatını istədiyi vaxt ləğv etməsi.
+4. **Admin paneli:**
+   - Ümumi statistika (tədbir, istifadəçi və qeydiyyat sayı).
+   - Tədbirlərin tam CRUD idarəetməsi.
+   - İştirakçı siyahısına baxış və qeydiyyatın silinməsi.
+   - İstifadəçi hesablarının idarə olunması.

@@ -1,7 +1,3 @@
-// client/src/api/apiSlice.ts
-// Bu fayl bütün Backend API sorğularımızı mərkəzləşdirən RTK Query servisidir.
-// Hər bir sorğuya avtomatik JWT Token əlavə edir və məlumatları keşləyir.
-
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { logout } from '../features/auth/authSlice';
@@ -19,7 +15,6 @@ const baseUrl = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
-  // Hər bir sorğu göndərilərkən Redux state-dəki tokeni avtomatik Authorization header-ə əlavə edir
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {
@@ -29,7 +24,6 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
-// 401 və ya 403 xətalarında avtomatik logout edən və login-ə yönləndirən wrapper
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
   api,
@@ -39,7 +33,6 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 
   if (result.error && (result.error.status === 401 || result.error.status === 403)) {
     const url = typeof args === 'string' ? args : args.url;
-    // Login və ya register sorğusu zamanı avtomatik yönləndirmə etmirik ki, xəta mesajı ekranda görünsün
     if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
       api.dispatch(logout());
       if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
@@ -54,11 +47,8 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  // Keş teqləri: Tədbir yaradıldıqda və ya silindikdə siyahını avtomatik yeniləmək üçün
   tagTypes: ['Events', 'EventDetails', 'Registrations', 'AdminUsers', 'AdminStats'],
-
   endpoints: (builder) => ({
-    // ================== AUTH ==================
     register: builder.mutation<AuthResponse, { name: string; email: string; password: string }>({
       query: (credentials) => ({
         url: '/auth/register',
@@ -84,7 +74,6 @@ export const apiSlice = createApi({
       }),
     }),
 
-    // ================== EVENTS ==================
     getEvents: builder.query<EventItem[], void>({
       query: () => '/events',
       providesTags: ['Events'],
@@ -106,7 +95,6 @@ export const apiSlice = createApi({
         url: `/events/${eventId}/register`,
         method: 'POST',
       }),
-      // Qeydiyyat uğurlu olanda tədbir siyahısını və qeydiyyat statusunu yeniləyir
       invalidatesTags: ['Events', 'EventDetails', 'Registrations', 'AdminStats'],
     }),
     cancelRegistration: builder.mutation<{ message: string }, number>({
@@ -117,7 +105,6 @@ export const apiSlice = createApi({
       invalidatesTags: ['Events', 'EventDetails', 'Registrations', 'AdminStats'],
     }),
 
-    // ================== ADMIN ==================
     createEvent: builder.mutation<{ message: string; event: EventItem }, Partial<EventItem>>({
       query: (newEvent) => ({
         url: '/events',
@@ -170,7 +157,6 @@ export const apiSlice = createApi({
   }),
 });
 
-// RTK Query tərəfindən avtomatik generasiya olunan React Hook-ları
 export const {
   useRegisterMutation,
   useLoginMutation,

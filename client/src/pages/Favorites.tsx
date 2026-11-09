@@ -1,6 +1,3 @@
-// client/src/pages/Favorites.tsx
-// Bu fayl istifadəçinin bəyəndiyi (ürək ikonuna kliklədiyi) seçilmiş tədbirləri göstərir.
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useGetEventsQuery } from '../api/apiSlice';
@@ -15,29 +12,29 @@ export const Favorites: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="text-secondary text-sm font-medium">Yüklənir...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <Link
             to="/"
-            className="inline-flex items-center space-x-2 text-secondary hover:text-primary mb-3 text-xs font-semibold transition"
+            className="inline-flex items-center space-x-1.5 text-secondary hover:text-primary mb-2 text-xs transition"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Bütün Tədbirlər</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Ana səhifə</span>
           </Link>
-          <h1 className="text-3xl font-extrabold text-primary tracking-tight">Seçilmiş Tədbirlər</h1>
-          <p className="text-secondary text-sm mt-1">Bəyəndiyiniz və yadda saxladığınız tədbirlər</p>
+          <h1 className="text-2xl font-bold text-primary">Seçilmişlər</h1>
+          <p className="text-secondary text-xs sm:text-sm mt-0.5">Yadda saxladığınız tədbirlər</p>
         </div>
 
-        <span className="text-xs font-bold px-4 py-2 bg-white border border-borderBeige text-primary rounded-full shadow-sm">
-          {favoriteEvents.length} Tədbir
+        <span className="text-xs font-semibold px-3 py-1.5 bg-white border border-borderBeige text-primary rounded-xl">
+          {favoriteEvents.length} tədbir
         </span>
       </div>
 
@@ -50,7 +47,7 @@ export const Favorites: React.FC = () => {
             return (
               <div
                 key={event.id}
-                className="bg-white border border-borderBeige rounded-[2rem] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl transition-all duration-300"
+                className="bg-white border border-borderBeige rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md transition"
               >
                 <div>
                   <div className="relative h-44 w-full overflow-hidden bg-cream">
@@ -65,7 +62,7 @@ export const Favorites: React.FC = () => {
                     />
                     <button
                       onClick={() => removeFavorite(event.id)}
-                      className="absolute top-3 right-3 p-2.5 bg-white/95 rounded-2xl text-red-600 shadow-md hover:bg-white transition"
+                      className="absolute top-3 right-3 p-2 bg-white/95 rounded-xl text-red-600 hover:bg-white transition"
                       title="Seçilmişlərdən sil"
                     >
                       <Heart className="w-4 h-4 fill-red-600" />
@@ -73,8 +70,8 @@ export const Favorites: React.FC = () => {
                   </div>
 
                   <div className="p-5">
-                    <h3 className="text-lg font-bold text-primary mb-2 line-clamp-1">{event.title}</h3>
-                    <div className="space-y-1 text-xs text-secondary font-medium">
+                    <h3 className="text-base font-bold text-primary mb-2 line-clamp-1">{event.title}</h3>
+                    <div className="space-y-1 text-xs text-secondary">
                       <div className="flex items-center space-x-1.5">
                         <Calendar className="w-3.5 h-3.5 text-accent" />
                         <span>{event.date}</span>
@@ -88,17 +85,17 @@ export const Favorites: React.FC = () => {
                 </div>
 
                 <div className="px-5 pb-5 pt-3 border-t border-borderBeige/60 flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 text-xs text-secondary font-bold">
-                    <Users className="w-4 h-4 text-accent" />
+                  <div className="flex items-center space-x-1.5 text-xs text-secondary">
+                    <Users className="w-3.5 h-3.5 text-accent" />
                     <span>{availableSeats} / {event.capacity} yer</span>
                   </div>
 
                   <Link
                     to={`/events/${event.id}`}
-                    className="inline-flex items-center space-x-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl transition shadow-sm"
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-xl transition shadow-sm"
                   >
-                    <span>Ətraflı bax</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>Ətraflı</span>
+                    <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
@@ -106,17 +103,17 @@ export const Favorites: React.FC = () => {
           })}
         </div>
       ) : (
-        <div className="bg-white border border-borderBeige rounded-3xl py-16 px-4 text-center max-w-md mx-auto shadow-sm">
-          <Heart className="w-12 h-12 text-secondary/30 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-primary">Seçilmiş tədbiriniz yoxdur</h3>
-          <p className="text-secondary text-xs mt-1 mb-5">
-            Tədbir kartlarındakı ürək işarəsinə klikləyərək bəyəndiyiniz tədbirləri bura əlavə edə bilərsiniz.
+        <div className="bg-white border border-borderBeige rounded-2xl py-12 px-4 text-center max-w-md mx-auto">
+          <Heart className="w-10 h-10 text-secondary/30 mx-auto mb-2" />
+          <h3 className="text-base font-bold text-primary">Seçilmiş tədbir yoxdur</h3>
+          <p className="text-secondary text-xs mt-1 mb-4">
+            Bəyəndiyiniz tədbirləri ürək ikonuna vuraraq bura əlavə edə bilərsiniz.
           </p>
           <Link
             to="/"
-            className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-xs rounded-xl shadow-sm transition"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-semibold text-xs rounded-xl shadow-sm transition"
           >
-            Tədbirlərə Bax
+            Tədbirlərə bax
           </Link>
         </div>
       )}

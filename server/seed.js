@@ -1,4 +1,3 @@
-// server/seed.js
 import db from './db.js';
 
 db.serialize(() => {
@@ -8,7 +7,7 @@ db.serialize(() => {
   const events = [
     [
       'Texnologiya Konfransı 2025',
-      'Müasir proqram təminatı, süni intellekt və bulud texnologiyaları üzrə ölkənin ən böyük texnoloji konfransı.',
+      'Müasir proqram təminatı, süni intellekt və bulud texnologiyaları üzrə illik konfrans.',
       '15 Noyabr 2026, 10:00',
       'Bakı Konqres Mərkəzi',
       120,
@@ -20,7 +19,7 @@ db.serialize(() => {
     ],
     [
       'Musiqi Festivalı',
-      'Canlı musiqi, elektron ritmlər və məşhur yerli və xarici sənətçilərin möhtəşəm çıxışları.',
+      'Canlı musiqi, elektron ritmlər və sənətçilərin çıxışları.',
       '20 Oktyabr 2026, 19:00',
       'Bakı İdman Sarayı',
       50,
@@ -32,7 +31,7 @@ db.serialize(() => {
     ],
     [
       'Biznes Forumu',
-      'İnvestisiya, korporativ idarəetmə və qlobal bazarlara çıxış strategiyaları haqqında panel müzakirələri.',
+      'İnvestisiya, idarəetmə və qlobal bazarlara çıxış strategiyaları haqqında müzakirələr.',
       '10 Oktyabr 2026, 09:00',
       'Bakı Expo Center',
       80,
@@ -44,7 +43,7 @@ db.serialize(() => {
     ],
     [
       'İncəsənət Sərgisi',
-      'Klassik və müasir rəngkarlıq, heykəltəraşlıq və instalyasiya əsərlərinin xüsusi nümayişi.',
+      'Klassik və müasir rəngkarlıq, heykəltəraşlıq əsərlərinin nümayişi.',
       '25 Noyabr 2026, 12:00',
       'Heydər Əliyev Mərkəzi',
       80,
@@ -56,7 +55,7 @@ db.serialize(() => {
     ],
     [
       'Proqramlaşdırma Bootcamp',
-      'Fullstack veb proqramlaşdırma, arxitektura və real layihələrin hazırlanması üzrə intensiv təlim.',
+      'Fullstack veb proqramlaşdırma, arxitektura və layihələrin hazırlanması üzrə təlim.',
       '1 Dekabr 2026, 09:00',
       'ADA Universiteti',
       60,
@@ -68,7 +67,7 @@ db.serialize(() => {
     ],
     [
       'Futbol Turniri',
-      'Həvəskar komandalar arasında həyəcanverici şəhər kuboku çempionatı və mükafatlandırma mərasimi.',
+      'Həvəskar komandalar arasında şəhər kuboku çempionatı və mükafatlandırma.',
       '18 Oktyabr 2026, 15:00',
       'Dalğa Arena',
       30,
@@ -87,7 +86,7 @@ db.serialize(() => {
 
   events.forEach(ev => stmt.run(ev));
   stmt.finalize(() => {
-    console.log('Şəkildəki 6 real tədbir (son qeydiyyat tarixi ilə) uğurla bazaya yazıldı!');
+    console.log('Tədbirlər bazaya yazıldı.');
     process.exit(0);
   });
 });

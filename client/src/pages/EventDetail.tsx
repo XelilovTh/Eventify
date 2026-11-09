@@ -1,6 +1,3 @@
-// client/src/pages/EventDetail.tsx
-// Bu fayl seçilmiş tədbirin tam təsvirini və qeydiyyat funksionallığını təmin edir.
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
@@ -20,7 +17,6 @@ export const EventDetail: React.FC = () => {
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-  // RTK Query sorğuları
   const { data: event, isLoading, error } = useGetEventByIdQuery(eventId);
   const { data: regStatus } = useCheckIsRegisteredQuery(eventId, {
     skip: !isAuthenticated,
@@ -56,11 +52,8 @@ export const EventDetail: React.FC = () => {
   const isEnded = statusLower === 'bitib';
   const isOngoing = statusLower === 'davam edir';
 
-  // Son qeydiyyat tarixi (deadline) qeydiyyat üçün tək həqiqət mənbəyidir
   const deadlineStr = event?.registration_deadline || event?.date || '';
   const isDeadlinePassed = isDatePassed(deadlineStr);
-
-  // Qeydiyyatın bağlı olma vəziyyəti: Yalnız tədbir bitibsə və ya son qeydiyyat tarixi keçibsə bloklanır
   const isRegistrationClosed = isEnded || isDeadlinePassed;
 
   const isFull = event ? (registeredCount >= event.capacity) : false;
@@ -90,17 +83,15 @@ export const EventDetail: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Geri qayıtmaq linki */}
       <Link
         to="/"
         className="inline-flex items-center space-x-2 text-secondary hover:text-primary mb-6 text-sm font-medium transition"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Bütün Tədbirlər</span>
+        <span>Bütün tədbirlər</span>
       </Link>
 
       <div className="bg-white border border-borderBeige rounded-3xl overflow-hidden shadow-xl">
-        {/* Böyük Tədbir Posteri */}
         {event.image_url && (
           <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-cream">
             <img
@@ -131,186 +122,180 @@ export const EventDetail: React.FC = () => {
         )}
 
         <div className="p-8">
-          {/* Status və Tutum */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <span
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-full ${
-              isEnded
-                ? 'bg-slate-200 text-slate-700'
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <span
+              className={`text-xs font-bold px-3.5 py-1.5 rounded-full ${
+                isEnded
+                  ? 'bg-slate-200 text-slate-700'
+                  : isOngoing
+                  ? 'bg-amber-100 text-amber-800'
+                  : isDeadlinePassed
+                  ? 'bg-rose-100 text-rose-800'
+                  : isFull
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-emerald-100 text-emerald-800'
+              }`}
+            >
+              {isEnded
+                ? 'Tədbir başa çatıb'
                 : isOngoing
-                ? 'bg-amber-100 text-amber-800'
+                ? 'Tədbir davam edir'
                 : isDeadlinePassed
-                ? 'bg-rose-100 text-rose-800'
+                ? 'Qeydiyyat müddəti bitib'
                 : isFull
-                ? 'bg-red-100 text-red-700'
-                : 'bg-emerald-100 text-emerald-800'
-            }`}
-          >
-            {isEnded
-              ? 'Tədbir artıq başa çatıb'
-              : isOngoing
-              ? 'Tədbir hazırda davam edir'
-              : isDeadlinePassed
-              ? 'Son qeydiyyat tarixi bitib'
-              : isFull
-              ? 'Bütün yerlər dolub'
-              : `${availableSeats} boş yer qalıb`}
-          </span>
+                ? 'Bütün yerlər dolub'
+                : `${availableSeats} boş yer qalıb`}
+            </span>
 
-          <div className="text-sm text-secondary">
-            Ümumi tutum: <span className="text-primary font-bold">{event.capacity} nəfər</span>
-          </div>
-        </div>
-
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight mb-6">
-          {event.title}
-        </h1>
-
-        {/* Tarix, Son Qeydiyyat və Məkan bloku */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 p-4 bg-cream/60 border border-borderBeige rounded-2xl">
-          <div className="flex items-center space-x-3 text-primary">
-            <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
-              <Calendar className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-xs text-secondary uppercase font-semibold">Tarix və Saat</p>
-              <p className="text-sm font-bold">{event.date}</p>
+            <div className="text-sm text-secondary">
+              Ümumi tutum: <span className="text-primary font-bold">{event.capacity} nəfər</span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 text-primary">
-            <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
-              <Clock className="w-5 h-5 text-accent" />
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight mb-6">
+            {event.title}
+          </h1>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 p-4 bg-cream/60 border border-borderBeige rounded-2xl">
+            <div className="flex items-center space-x-3 text-primary">
+              <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
+                <Calendar className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-xs text-secondary uppercase font-semibold">Tarix və Saat</p>
+                <p className="text-sm font-bold">{event.date}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-secondary uppercase font-semibold">Son Qeydiyyat</p>
-              <p className={`text-sm font-bold ${isDeadlinePassed ? 'text-red-600' : 'text-primary'}`}>
-                {event.registration_deadline || event.date}
-              </p>
+
+            <div className="flex items-center space-x-3 text-primary">
+              <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
+                <Clock className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-xs text-secondary uppercase font-semibold">Son Qeydiyyat</p>
+                <p className={`text-sm font-bold ${isDeadlinePassed ? 'text-red-600' : 'text-primary'}`}>
+                  {event.registration_deadline || event.date}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3 text-primary">
+              <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
+                <MapPin className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-xs text-secondary uppercase font-semibold">Məkan</p>
+                <p className="text-sm font-bold truncate">{event.location}</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 text-primary">
-            <div className="p-2.5 bg-accent/20 text-primary rounded-xl">
-              <MapPin className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-xs text-secondary uppercase font-semibold">Məkan</p>
-              <p className="text-sm font-bold truncate">{event.location}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tədbir haqqında */}
-        <div className="mb-8">
-          <h2 className="text-lg font-bold text-primary mb-3">Tədbir Haqqında</h2>
-          <p className="text-secondary leading-relaxed whitespace-pre-line text-sm sm:text-base">
-            {event.description}
-          </p>
-        </div>
-
-        {/* Bildiriş mesajı */}
-        {notification && (
-          <div
-            className={`mb-6 p-4 rounded-xl flex items-center space-x-3 text-sm font-medium ${
-              notification.type === 'success'
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-                : 'bg-red-50 border border-red-200 text-red-700'
-            }`}
-          >
-            {notification.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-600" />
-            ) : (
-              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
-            )}
-            <span>{notification.message}</span>
-          </div>
-        )}
-
-        {/* Qeydiyyat Düymələri */}
-        <div className="pt-6 border-t border-borderBeige flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2 text-sm text-secondary">
-            <Users className="w-4 h-4 text-accent" />
-            <span>Hazırda <b className="text-primary">{registeredCount}</b> nəfər qeydiyyatdan keçib</span>
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-primary mb-3">Tədbir haqqında</h2>
+            <p className="text-secondary leading-relaxed whitespace-pre-line text-sm sm:text-base">
+              {event.description}
+            </p>
           </div>
 
-          {isEnded ? (
-            <div className="flex items-center space-x-2">
-              {isRegistered && (
-                <span className="inline-flex items-center space-x-1.5 text-slate-600 text-xs font-bold mr-2">
-                  <CheckCircle className="w-4 h-4 text-slate-500" />
-                  <span>Bu tədbirdə iştirak etmisiniz</span>
-                </span>
+          {notification && (
+            <div
+              className={`mb-6 p-4 rounded-xl flex items-center space-x-3 text-sm font-medium ${
+                notification.type === 'success'
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border border-red-200 text-red-700'
+              }`}
+            >
+              {notification.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
               )}
-              <button
-                disabled
-                className="w-full sm:w-auto px-6 py-3.5 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
-              >
-                Tədbir artıq başa çatıb (Qeydiyyat bağlıdır)
-              </button>
+              <span>{notification.message}</span>
             </div>
-          ) : isDeadlinePassed ? (
-            <div className="flex items-center space-x-2">
-              {isRegistered && (
-                <span className="inline-flex items-center space-x-1.5 text-rose-700 text-xs font-bold mr-2">
-                  <CheckCircle className="w-4 h-4 text-rose-600" />
-                  <span>Qeydiyyatınız mövcuddur</span>
-                </span>
-              )}
-              <button
-                disabled
-                className="w-full sm:w-auto px-6 py-3.5 bg-rose-100 text-rose-800 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
-              >
-                Son qeydiyyat tarixi bitib (Qeydiyyat bağlıdır)
-              </button>
-            </div>
-          ) : !isAuthenticated ? (
-            <Link
-              to="/login"
-              className="w-full sm:w-auto px-6 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-center text-sm shadow-md shadow-primary/20 transition"
-            >
-              Qeydiyyat üçün Daxil Olun
-            </Link>
-          ) : isRegistered ? (
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              <span className="inline-flex items-center space-x-1.5 text-emerald-700 text-sm font-bold">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
-                <span>Qeydiyyatdan keçmisiniz</span>
-              </span>
-              <button
-                onClick={() => setIsCancelModalOpen(true)}
-                disabled={isCanceling}
-                className="w-full sm:w-auto px-5 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
-              >
-                {isCanceling ? 'Ləğv edilir...' : 'Qeydiyyatı Ləğv Et'}
-              </button>
-            </div>
-          ) : isFull ? (
-            <button
-              disabled
-              className="w-full sm:w-auto px-6 py-3.5 bg-gray-200 text-gray-500 font-semibold rounded-xl text-sm cursor-not-allowed"
-            >
-              Yer qalmayıb
-            </button>
-          ) : (
-            <button
-              onClick={handleRegister}
-              disabled={isRegistering}
-              className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm shadow-md shadow-primary/20 transition disabled:opacity-50 cursor-pointer"
-            >
-              {isRegistering ? 'Yazılır...' : 'Tədbirə Qeydiyyatdan Keç'}
-            </button>
           )}
-        </div>
+
+          <div className="pt-6 border-t border-borderBeige flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center space-x-2 text-sm text-secondary">
+              <Users className="w-4 h-4 text-accent" />
+              <span>Hazırda <b className="text-primary">{registeredCount}</b> nəfər qeydiyyatdan keçib</span>
+            </div>
+
+            {isEnded ? (
+              <div className="flex items-center space-x-2">
+                {isRegistered && (
+                  <span className="inline-flex items-center space-x-1.5 text-slate-600 text-xs font-bold mr-2">
+                    <CheckCircle className="w-4 h-4 text-slate-500" />
+                    <span>Bu tədbirdə iştirak etmisiniz</span>
+                  </span>
+                )}
+                <button
+                  disabled
+                  className="w-full sm:w-auto px-6 py-3.5 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
+                >
+                  Tədbir başa çatıb
+                </button>
+              </div>
+            ) : isDeadlinePassed ? (
+              <div className="flex items-center space-x-2">
+                {isRegistered && (
+                  <span className="inline-flex items-center space-x-1.5 text-rose-700 text-xs font-bold mr-2">
+                    <CheckCircle className="w-4 h-4 text-rose-600" />
+                    <span>Qeydiyyatınız mövcuddur</span>
+                  </span>
+                )}
+                <button
+                  disabled
+                  className="w-full sm:w-auto px-6 py-3.5 bg-rose-100 text-rose-800 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
+                >
+                  Qeydiyyat müddəti bitib
+                </button>
+              </div>
+            ) : !isAuthenticated ? (
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-6 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-center text-sm shadow-md shadow-primary/20 transition"
+              >
+                Daxil ol
+              </Link>
+            ) : isRegistered ? (
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <span className="inline-flex items-center space-x-1.5 text-emerald-700 text-sm font-bold">
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <span>Qeydiyyatdasınız</span>
+                </span>
+                <button
+                  onClick={() => setIsCancelModalOpen(true)}
+                  disabled={isCanceling}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl text-sm font-semibold transition disabled:opacity-50 cursor-pointer"
+                >
+                  {isCanceling ? 'Ləğv edilir...' : 'Qeydiyyatı ləğv et'}
+                </button>
+              </div>
+            ) : isFull ? (
+              <button
+                disabled
+                className="w-full sm:w-auto px-6 py-3.5 bg-gray-200 text-gray-500 font-semibold rounded-xl text-sm cursor-not-allowed"
+              >
+                Yer qalmayıb
+              </button>
+            ) : (
+              <button
+                onClick={handleRegister}
+                disabled={isRegistering}
+                className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm shadow-md shadow-primary/20 transition disabled:opacity-50 cursor-pointer"
+              >
+                {isRegistering ? 'Yazılır...' : 'Qeydiyyatdan keç'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Xüsusi Təsdiq Modalı */}
       <ConfirmModal
         isOpen={isCancelModalOpen}
-        title="Qeydiyyatı Ləğv Et"
-        message={`"${event.title}" tədbirindən qeydiyyatınızı ləğv etmək istədiyinizdən əminsiniz?`}
-        confirmText="Bəli, ləğv et"
+        title="Qeydiyyatı ləğv et"
+        message={`"${event.title}" tədbirindən qeydiyyatınızı ləğv etmək istəyirsiniz?`}
+        confirmText="Ləğv et"
         cancelText="Geri"
         isDestructive={true}
         onConfirm={handleConfirmCancel}

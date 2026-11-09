@@ -1,6 +1,3 @@
-// client/src/pages/Register.tsx
-// Bu fayl yeni istifadəçilərin qeydiyyatdan keçməsi üçün qəhvəyi tonlu qeydiyyat formasıdır.
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterMutation } from '../api/apiSlice';
@@ -24,7 +21,7 @@ export const Register: React.FC = () => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email.trim())) {
-      setErrorMessage('Zəhmət olmasa düzgün e-poçt ünvanı daxil edin (məs: nümunə@mail.com).');
+      setErrorMessage('Düzgün e-poçt ünvanı daxil edin.');
       return;
     }
 
@@ -43,71 +40,71 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white border border-borderBeige rounded-3xl p-8 shadow-xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex p-3.5 bg-accent/20 text-primary rounded-2xl mb-3 shadow-sm">
-            <UserPlus className="w-8 h-8 text-accent" />
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white border border-borderBeige rounded-2xl p-8 shadow-sm">
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3 bg-cream text-accent rounded-xl mb-3">
+            <UserPlus className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-extrabold text-primary tracking-tight">Yeni Hesab Yarat</h2>
-          <p className="text-secondary text-sm mt-1">Eventify platformasına qoşulun</p>
+          <h2 className="text-2xl font-bold text-primary">Qeydiyyat</h2>
+          <p className="text-secondary text-xs sm:text-sm mt-1">Platformada yeni hesab yaradın</p>
         </div>
 
         {errorMessage && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-3 text-red-700 text-sm">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+          <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2.5 text-red-700 text-xs sm:text-sm">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-600" />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-primary mb-1.5">
               Ad və Soyad
             </label>
             <div className="relative">
-              <User className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Məs: Əli Əliyev"
-                className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
+                placeholder="Ad və soyad"
+                className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
-              E-poçt Ünvanı
+            <label className="block text-xs font-semibold text-primary mb-1.5">
+              E-poçt
             </label>
             <div className="relative">
-              <Mail className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nümunə@mail.com"
-                className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
+                placeholder="email@domain.com"
+                className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-primary mb-1.5">
               Şifrə
             </label>
             <div className="relative">
-              <Lock className="w-5 h-5 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ən azı 6 simvol"
-                className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-11 pr-4 py-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition text-sm font-medium"
+                placeholder="••••••••"
+                className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
@@ -115,16 +112,16 @@ export const Register: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl transition duration-200 shadow-md shadow-primary/25 disabled:opacity-50 text-sm"
+            className="w-full py-3 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl transition duration-150 shadow-sm disabled:opacity-50 text-sm"
           >
-            {isLoading ? 'Qeydiyyat aparılır...' : 'Qeydiyyatdan keç'}
+            {isLoading ? 'Gözləyin...' : 'Qeydiyyatdan keç'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-secondary">
+        <p className="mt-6 text-center text-xs sm:text-sm text-secondary">
           Artıq hesabınız var?{' '}
-          <Link to="/login" className="text-accent hover:text-accent-hover font-bold">
-            Daxil olun
+          <Link to="/login" className="text-accent hover:underline font-semibold">
+            Daxil ol
           </Link>
         </p>
       </div>

@@ -1,7 +1,3 @@
-// server/routes/eventRoutes.js
-// Bu fayl tədbirlərin idarə edilməsi (baxış, yaratma, yeniləmə, silmə)
-// və istifadəçilərin tədbirlərə qeydiyyatdan keçməsi üçün API nöqtələrini təmin edir.
-
 import express from 'express';
 import db from '../db.js';
 import { authenticate, requireAdmin } from '../middleware/authMiddleware.js';
@@ -20,11 +16,6 @@ export const ALLOWED_CATEGORIES = [
   'Digər'
 ];
 
-// ==========================================
-// 1. TƏDBİRLƏRİN BAXIŞI (HƏR KƏS ÜÇÜN AÇIQDIR)
-// ==========================================
-
-// Bütün tədbirləri gətir (hər tədbir üçün qeydiyyatdan keçənlərin sayını da hesablayır)
 router.get('/', (req, res) => {
   const sql = `
     SELECT 
@@ -44,7 +35,6 @@ router.get('/', (req, res) => {
   });
 });
 
-// Daxil olmuş istifadəçinin qeydiyyatdan keçdiyi tədbirləri gətir
 router.get('/my-registrations', authenticate, (req, res) => {
   const sql = `
     SELECT 
@@ -65,7 +55,6 @@ router.get('/my-registrations', authenticate, (req, res) => {
   });
 });
 
-// Tək bir tədbirin detallarını gətir
 router.get('/:id', (req, res) => {
   const sql = `
     SELECT 
@@ -88,16 +77,10 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// ==========================================
-// 2. TƏDBİR QEYDİYYATI (DAXİL OLMUŞ İSTİFADƏÇİ)
-// ==========================================
-
-// Tədbirə qeydiyyatdan keçmək
 router.post('/:id/register', authenticate, (req, res) => {
   const eventId = req.params.id;
   const userId = req.user.id;
 
-  // 1-ci Addım: Tədbiri və mövcud qeydiyyat sayını tapırıq
   const eventSql = `
     SELECT 
       e.*,
@@ -113,25 +96,20 @@ router.post('/:id/register', authenticate, (req, res) => {
       return res.status(404).json({ message: 'Tədbir tapılmadı.' });
     }
 
-    // 2-ci Addım: Tədbir admin tərəfindən 'Bitib' kimi qeyd olunubsa qeydiyyat qadağandır
     const statusNormalized = event.status ? event.status.trim().toLowerCase() : '';
     if (statusNormalized === 'bitib') {
-      return res.status(400).json({ message: 'Bu tədbir artıq başa çatıb. Qeydiyyat mümkün deyil.' });
+      return res.status(400).json({ message: 'Bu tədbir artıq başa çatıb.' });
     }
 
-    // 3-cü Addım: Son qeydiyyat tarixini tək həqiqət mənbəyi kimi yoxlayırıq
     const deadlineStr = event.registration_deadline || event.date;
     if (isDatePassed(deadlineStr)) {
-      return res.status(400).json({ message: 'Bu tədbir üçün son qeydiyyat tarixi artıq bitib. Qeydiyyat qəbul olunmur.' });
+      return res.status(400).json({ message: 'Bu tədbir üçün qeydiyyat müddəti bitib.' });
     }
 
-    // 4-cü Addım: İlkin yer limitini yoxlayırıq
     if (event.current_registrations >= event.capacity) {
-      return res.status(400).json({ message: 'Təəssüf ki, tədbirdə boş yer qalmayıb.' });
+      return res.status(400).json({ message: 'Tədbirdə boş yer qalmayıb.' });
     }
 
-    // 5-ci Addım: Atomik Qeydiyyat (Race condition və overbooking qarşısını 100% alır)
-    // Şərt: Yalnız həmin an bazadakı qeydiyyat sayı tutumdan azdırsa sətir əlavə olunur
     const atomicInsertSql = `
       INSERT INTO registrations (user_id, event_id)
       SELECT ?, ?
@@ -144,24 +122,21 @@ router.post('/:id/register', authenticate, (req, res) => {
 
     db.run(atomicInsertSql, [userId, eventId, eventId, eventId], function (insertErr) {
       if (insertErr) {
-        // Əgər bazada UNIQUE(user_id, event_id) constraint pozularsa
         if (insertErr.message && insertErr.message.includes('UNIQUE')) {
           return res.status(400).json({ message: 'Siz artıq bu tədbirə qeydiyyatdan keçmisiniz.' });
         }
         return res.status(500).json({ message: 'Qeydiyyat zamanı xəta baş verdi.' });
       }
 
-      // Əgər dəyişiklik edilməyibsə (0 sətir), deməli paralel sorğu zamanı yer dolub
       if (this.changes === 0) {
-        return res.status(400).json({ message: 'Təəssüf ki, tədbirdə boş yer qalmayıb.' });
+        return res.status(400).json({ message: 'Tədbirdə boş yer qalmayıb.' });
       }
 
-      res.status(201).json({ message: 'Tədbirə uğurla qeydiyyatdan keçdiniz!' });
+      res.status(201).json({ message: 'Tədbirə qeydiyyatdan keçdiniz.' });
     });
   });
 });
 
-// Qeydiyyatı ləğv etmək (istifadəçi öz istəyi ilə tədbirdən çıxır)
 router.delete('/:id/register', authenticate, (req, res) => {
   const eventId = req.params.id;
   const userId = req.user.id;
@@ -174,11 +149,10 @@ router.delete('/:id/register', authenticate, (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ message: 'Qeydiyyat tapılmadı.' });
     }
-    res.json({ message: 'Qeydiyyatınız uğurla ləğv edildi.' });
+    res.json({ message: 'Qeydiyyatınız ləğv edildi.' });
   });
 });
 
-// İstifadəçinin qeydiyyat statusunu yoxlamaq (bu tədbirə yazılıb ya yox?)
 router.get('/:id/is-registered', authenticate, (req, res) => {
   const sql = `SELECT * FROM registrations WHERE user_id = ? AND event_id = ?`;
   db.get(sql, [req.user.id, req.params.id], (err, row) => {
@@ -187,11 +161,6 @@ router.get('/:id/is-registered', authenticate, (req, res) => {
   });
 });
 
-// ==========================================
-// 3. ADMIN ƏMƏLİYYATLARI (CRUD)
-// ==========================================
-
-// Yeni tədbir yaratmaq
 router.post('/', authenticate, requireAdmin, (req, res) => {
   const { 
     title, 
@@ -206,20 +175,20 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
   } = req.body;
 
   if (!title || !description || !date || !location || capacity === undefined) {
-    return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
+    return res.status(400).json({ message: 'Bütün sahələri doldurun.' });
   }
 
   const numCapacity = Number(capacity);
   if (isNaN(numCapacity) || numCapacity <= 0) {
-    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
+    return res.status(400).json({ message: 'Tutum müsbət ədəd olmalıdır.' });
   }
 
   if (status && !ALLOWED_STATUSES.includes(status)) {
-    return res.status(400).json({ message: `Yanlış status. İcazə verilən: ${ALLOWED_STATUSES.join(', ')}` });
+    return res.status(400).json({ message: `Yanlış status: ${status}` });
   }
 
   if (category && !ALLOWED_CATEGORIES.includes(category)) {
-    return res.status(400).json({ message: `Yanlış kateqoriya. İcazə verilən: ${ALLOWED_CATEGORIES.join(', ')}` });
+    return res.status(400).json({ message: `Yanlış kateqoriya: ${category}` });
   }
 
   const sql = `
@@ -242,7 +211,6 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
   );
 });
 
-// Tədbiri redaktə etmək (Bütün sahələrin və tutumun mövcud qeydiyyat sayından az olmamasının yoxlanışı)
 router.put('/:id', authenticate, requireAdmin, (req, res) => {
   const eventId = req.params.id;
   const { 
@@ -257,26 +225,22 @@ router.put('/:id', authenticate, requireAdmin, (req, res) => {
     registration_deadline = ''
   } = req.body;
 
-  // 1. Vacib xanaların mövcudluğu
   if (!title || !description || !date || !location || capacity === undefined) {
-    return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
+    return res.status(400).json({ message: 'Bütün sahələri doldurun.' });
   }
 
-  // 2. Tutumun düzgünlüyü
   const numCapacity = Number(capacity);
   if (isNaN(numCapacity) || numCapacity <= 0) {
-    return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
+    return res.status(400).json({ message: 'Tutum müsbət ədəd olmalıdır.' });
   }
 
-  // 3. Status və kateqoriyanın düzgünlüyü
   if (status && !ALLOWED_STATUSES.includes(status)) {
-    return res.status(400).json({ message: `Yanlış status. İcazə verilən: ${ALLOWED_STATUSES.join(', ')}` });
+    return res.status(400).json({ message: `Yanlış status: ${status}` });
   }
   if (category && !ALLOWED_CATEGORIES.includes(category)) {
-    return res.status(400).json({ message: `Yanlış kateqoriya. İcazə verilən: ${ALLOWED_CATEGORIES.join(', ')}` });
+    return res.status(400).json({ message: `Yanlış kateqoriya: ${category}` });
   }
 
-  // 4. Tutum hazırkı qeydiyyat sayından az ola bilməz
   const checkRegSql = `SELECT COUNT(*) AS current_regs FROM registrations WHERE event_id = ?`;
   db.get(checkRegSql, [eventId], (countErr, row) => {
     if (countErr) {
@@ -286,7 +250,7 @@ router.put('/:id', authenticate, requireAdmin, (req, res) => {
     const currentRegs = row ? row.current_regs : 0;
     if (numCapacity < currentRegs) {
       return res.status(400).json({ 
-        message: `Tutum hazırkı qeydiyyat sayından (${currentRegs} nəfər) az ola bilməz.` 
+        message: `Tutum hazırkı qeydiyyat sayından (${currentRegs}) az ola bilməz.` 
       });
     }
 
@@ -312,7 +276,6 @@ router.put('/:id', authenticate, requireAdmin, (req, res) => {
   });
 });
 
-// Tədbiri silmək
 router.delete('/:id', authenticate, requireAdmin, (req, res) => {
   const sql = `DELETE FROM events WHERE id = ?`;
   db.run(sql, [req.params.id], function (err) {
@@ -326,7 +289,6 @@ router.delete('/:id', authenticate, requireAdmin, (req, res) => {
   });
 });
 
-// Tədbirə qeydiyyatdan keçənlərin siyahısı (Admin Dashboard üçün)
 router.get('/:id/attendees', authenticate, requireAdmin, (req, res) => {
   const sql = `
     SELECT u.id, u.name, u.email, r.registered_at
@@ -344,7 +306,6 @@ router.get('/:id/attendees', authenticate, requireAdmin, (req, res) => {
   });
 });
 
-// Admin tərəfindən istifadəçinin tədbir qeydiyyatının silinməsi
 router.delete('/:id/attendees/:userId', authenticate, requireAdmin, (req, res) => {
   const eventId = req.params.id;
   const userId = req.params.userId;
@@ -357,7 +318,7 @@ router.delete('/:id/attendees/:userId', authenticate, requireAdmin, (req, res) =
     if (this.changes === 0) {
       return res.status(404).json({ message: 'Qeydiyyat tapılmadı.' });
     }
-    res.json({ message: 'İstifadəçi tədbir qeydiyyatından uğurla silindi.' });
+    res.json({ message: 'İstifadəçi tədbir qeydiyyatından silindi.' });
   });
 });
 

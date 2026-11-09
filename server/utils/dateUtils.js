@@ -1,7 +1,3 @@
-// server/utils/dateUtils.js
-// Həm ISO 8601 (məs: "2026-11-15T10:00:00Z" və ya "2026-11-15"),
-// həm də Azərbaycan dilindəki ("15 Noyabr 2026, 10:00") tarixləri tam dəqiqliklə parse edən vahid köməkçi modul.
-
 const AZ_MONTHS = {
   yanvar: 0,
   fevral: 1,
@@ -17,24 +13,17 @@ const AZ_MONTHS = {
   dekabr: 11
 };
 
-/**
- * Tarix sətrini millisaniyəyə (timestamp) çevirir
- * @param {string} dateStr 
- * @returns {number} timestamp (ms) və ya 0
- */
 export const parseEventDate = (dateStr) => {
   if (!dateStr || typeof dateStr !== 'string') return 0;
 
   const trimmed = dateStr.trim();
   if (!trimmed) return 0;
 
-  // 1. Birbaşa ISO 8601 və ya standart tarix formatı yoxlanışı
   const parsedDirect = Date.parse(trimmed);
   if (!isNaN(parsedDirect)) {
     return parsedDirect;
   }
 
-  // 2. Azərbaycan ay adları ilə format ("15 Noyabr 2026, 10:00" və ya "15 Noyabr 2026")
   const clean = trimmed.replace(/,/g, '').replace(/–/g, '-');
   const parts = clean.split(' ').filter(Boolean);
 
@@ -62,11 +51,6 @@ export const parseEventDate = (dateStr) => {
   return 0;
 };
 
-/**
- * Tarixin artıq keçmiş (bitmiş) olduğunu yoxlayır
- * @param {string} dateStr 
- * @returns {boolean}
- */
 export const isDatePassed = (dateStr) => {
   if (!dateStr) return false;
   const timestamp = parseEventDate(dateStr);
