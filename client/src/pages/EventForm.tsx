@@ -31,7 +31,7 @@ export const EventForm: React.FC = () => {
     location: '',
     capacity: 50,
     category: 'Konfranslar',
-    image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+    image_url: '',
     status: 'Gələcəkdə' as EventStatus,
     registration_deadline: '',
   });
@@ -50,7 +50,7 @@ export const EventForm: React.FC = () => {
       location: existingEvent.location,
       capacity: existingEvent.capacity,
       category: existingEvent.category || 'Konfranslar',
-      image_url: existingEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+      image_url: existingEvent.image_url || '',
       status: existingEvent.status || 'Gələcəkdə',
       registration_deadline: existingEvent.registration_deadline || '',
     });
