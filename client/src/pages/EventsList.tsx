@@ -16,7 +16,9 @@ import {
   Palette,
   Laptop,
   MoreHorizontal,
-  Heart
+  Heart,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { parseAzerbaijaniDate } from '../utils/dateUtils';
 import { useFavorites } from '../hooks/useFavorites';
@@ -82,6 +84,32 @@ export const EventsList: React.FC = () => {
       });
   }, [events, selectedCategory, searchTerm, statusFilter, sortByDate]);
 
+  const ITEMS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = useState(1);
+  const filterKey = `${selectedCategory}_${searchTerm}_${statusFilter}_${sortByDate}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setCurrentPage(1);
+  }
+
+  const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
+  const validCurrentPage = Math.min(currentPage, Math.max(1, totalPages));
+
+  const paginatedEvents = useMemo(() => {
+    const start = (validCurrentPage - 1) * ITEMS_PER_PAGE;
+    return filteredEvents.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredEvents, validCurrentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const section = document.getElementById('events-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -106,6 +134,8 @@ export const EventsList: React.FC = () => {
           <img
             src="/baku-banner.jpg"
             alt="Bakı"
+            loading="eager"
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#24130A]/95 via-[#24130A]/70 to-transparent"></div>
@@ -207,110 +237,168 @@ export const EventsList: React.FC = () => {
       </div>
 
       {filteredEvents.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event) => {
-            const registered = event.registered_count || 0;
-            const availableSeats = Math.max(0, event.capacity - registered);
-            const isFav = isFavorite(event.id);
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedEvents.map((event) => {
+              const registered = event.registered_count || 0;
+              const availableSeats = Math.max(0, event.capacity - registered);
+              const isFav = isFavorite(event.id);
 
-            const status = event.status || 'Gələcəkdə';
-            const statusConfig = {
-              'Gələcəkdə': {
+              const status = event.status || 'Gələcəkdə';
+              const statusConfig = {
+                'Gələcəkdə': {
+                  bg: 'bg-white/95 text-emerald-800',
+                  dot: 'bg-emerald-500',
+                },
+                'Davam edir': {
+                  bg: 'bg-white/95 text-amber-800',
+                  dot: 'bg-amber-500',
+                },
+                'Bitib': {
+                  bg: 'bg-white/95 text-slate-700',
+                  dot: 'bg-slate-400',
+                },
+              }[status] || {
                 bg: 'bg-white/95 text-emerald-800',
                 dot: 'bg-emerald-500',
-              },
-              'Davam edir': {
-                bg: 'bg-white/95 text-amber-800',
-                dot: 'bg-amber-500',
-              },
-              'Bitib': {
-                bg: 'bg-white/95 text-slate-700',
-                dot: 'bg-slate-400',
-              },
-            }[status] || {
-              bg: 'bg-white/95 text-emerald-800',
-              dot: 'bg-emerald-500',
-            };
+              };
 
-            return (
-              <div
-                key={event.id}
-                className="bg-white border border-borderBeige rounded-[2rem] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
-              >
-                <div>
-                  <div className="relative h-48 w-full overflow-hidden bg-cream">
-                    <img
-                      src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
-                      alt={event.title}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
-                      }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
+              return (
+                <div
+                  key={event.id}
+                  className="bg-white border border-borderBeige rounded-[2rem] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
+                >
+                  <div>
+                    <div className="relative h-48 w-full overflow-hidden bg-cream">
+                      <img
+                        src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
+                        alt={event.title}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
+                        }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
 
-                    <div className="absolute top-3 right-3">
-                      <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md whitespace-nowrap ${statusConfig.bg}`}>
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusConfig.dot}`}></span>
-                        <span>{status}</span>
-                      </span>
+                      <div className="absolute top-3 right-3">
+                        <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md whitespace-nowrap ${statusConfig.bg}`}>
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusConfig.dot}`}></span>
+                          <span>{status}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <h3 className="text-lg font-bold text-primary group-hover:text-accent transition duration-200 line-clamp-1 mb-3">
+                        {event.title}
+                      </h3>
+
+                      <div className="space-y-1.5 text-xs text-secondary font-medium mb-4">
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-accent flex-shrink-0" />
+                          <span>{event.date}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-primary group-hover:text-accent transition duration-200 line-clamp-1 mb-3">
-                      {event.title}
-                    </h3>
+                  <div className="px-6 pb-6 pt-3 border-t border-borderBeige/60 flex items-center justify-between">
+                    <div className="flex items-center space-x-1.5 text-xs text-secondary font-bold">
+                      <Users className="w-4 h-4 text-accent" />
+                      <span>{availableSeats} / {event.capacity} yer</span>
+                    </div>
 
-                    <div className="space-y-1.5 text-xs text-secondary font-medium mb-4">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-accent flex-shrink-0" />
-                        <span>{event.date}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
-                        <span className="truncate">{event.location}</span>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleFavorite(event.id);
+                        }}
+                        className={`p-2.5 rounded-2xl border transition duration-150 ${
+                          isFav
+                            ? 'bg-red-50 border-red-200 text-red-600'
+                            : 'bg-cream/40 border-borderBeige text-secondary hover:text-red-500'
+                        }`}
+                        title={isFav ? 'Seçilmişlərdən çıxar' : 'Seçilmişlərə əlavə et'}
+                      >
+                        <Heart className={`w-4 h-4 ${isFav ? 'fill-red-600' : ''}`} />
+                      </button>
+
+                      <Link
+                        to={`/events/${event.id}`}
+                        className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-2xl transition duration-150 shadow-sm"
+                      >
+                        <span>Ətraflı</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
                     </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                <div className="px-6 pb-6 pt-3 border-t border-borderBeige/60 flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 text-xs text-secondary font-bold">
-                    <Users className="w-4 h-4 text-accent" />
-                    <span>{availableSeats} / {event.capacity} yer</span>
-                  </div>
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-borderBeige/60">
+              <p className="text-xs text-secondary font-medium">
+                Cəmi <b className="text-primary">{filteredEvents.length}</b> tədbirdən{' '}
+                <b className="text-primary">
+                  {(validCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(validCurrentPage * ITEMS_PER_PAGE, filteredEvents.length)}
+                </b>{' '}
+                göstərilir
+              </p>
 
-                  <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(validCurrentPage - 1)}
+                  disabled={validCurrentPage === 1}
+                  className="inline-flex items-center space-x-1 px-3 py-2 bg-white border border-borderBeige rounded-xl text-xs font-bold text-primary hover:bg-cream transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                  title="Əvvəlki səhifə"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Əvvəlki</span>
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  const isActive = validCurrentPage === page;
+                  return (
                     <button
+                      key={page}
                       type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleFavorite(event.id);
-                      }}
-                      className={`p-2.5 rounded-2xl border transition duration-150 ${
-                        isFav
-                          ? 'bg-red-50 border-red-200 text-red-600'
-                          : 'bg-cream/40 border-borderBeige text-secondary hover:text-red-500'
+                      onClick={() => handlePageChange(page)}
+                      className={`w-9 h-9 rounded-xl text-xs font-bold transition cursor-pointer shadow-sm ${
+                        isActive
+                          ? 'bg-primary text-white shadow-md'
+                          : 'bg-white hover:bg-cream border border-borderBeige text-secondary hover:text-primary'
                       }`}
-                      title={isFav ? 'Seçilmişlərdən çıxar' : 'Seçilmişlərə əlavə et'}
                     >
-                      <Heart className={`w-4 h-4 ${isFav ? 'fill-red-600' : ''}`} />
+                      {page}
                     </button>
+                  );
+                })}
 
-                    <Link
-                      to={`/events/${event.id}`}
-                      className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-2xl transition duration-150 shadow-sm"
-                    >
-                      <span>Ətraflı</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(validCurrentPage + 1)}
+                  disabled={validCurrentPage === totalPages}
+                  className="inline-flex items-center space-x-1 px-3 py-2 bg-white border border-borderBeige rounded-xl text-xs font-bold text-primary hover:bg-cream transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                  title="Növbəti səhifə"
+                >
+                  <span className="hidden sm:inline">Növbəti</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white border border-borderBeige rounded-3xl py-16 px-4 text-center max-w-md mx-auto shadow-sm">

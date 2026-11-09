@@ -256,6 +256,8 @@ export const AdminDashboard: React.FC = () => {
                                 <img
                                   src={event.image_url}
                                   alt={event.title}
+                                  loading="lazy"
+                                  decoding="async"
                                   onError={(e) => {
                                     e.currentTarget.onerror = null;
                                     e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=200&q=80';
