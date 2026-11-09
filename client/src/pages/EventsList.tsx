@@ -21,8 +21,7 @@ import {
   Palette,
   Laptop,
   MoreHorizontal,
-  Heart,
-  SlidersHorizontal
+  Heart
 } from 'lucide-react';
 import { parseAzerbaijaniDate } from '../utils/dateUtils';
 
@@ -179,19 +178,8 @@ export const EventsList: React.FC = () => {
           )}
         </div>
 
-        {/* Sağ Tərəf: Filtrlər və Tarix Süzgəci */}
+        {/* Sağ Tərəf: Tarix Süzgəci */}
         <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
-          <button
-            onClick={() => {
-              setSelectedCategory('all');
-              setSearchTerm('');
-            }}
-            className="inline-flex items-center space-x-1.5 px-4 py-3 bg-white border border-borderBeige rounded-2xl text-xs font-bold text-secondary hover:text-primary transition shadow-sm"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span>Filtrlər</span>
-          </button>
-
           <div className="relative">
             <select
               value={sortByDate}
