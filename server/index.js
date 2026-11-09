@@ -12,10 +12,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+const allowedOrigins = clientOrigin.split(',').map((o) => o.trim().replace(/\/$/, ''));
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin === clientOrigin || origin === 'http://localhost:5173') {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin === 'http://localhost:5173' ||
+      origin === 'http://localhost:3000' ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
       callback(new Error('CORS siyasəti tərəfindən bloklandı'));
