@@ -8,6 +8,7 @@ import {
 import { Calendar, MapPin, Users, FileText, ArrowLeft, Save, Clock } from 'lucide-react';
 import { EVENT_CATEGORIES } from '../types';
 import type { EventStatus } from '../types';
+import { formatToAzerbaijaniDate, toDateTimeLocalValue } from '../utils/dateUtils';
 
 export const EventForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,8 @@ export const EventForm: React.FC = () => {
     registration_deadline: '',
   });
 
+  const [dateLocal, setDateLocal] = useState('');
+  const [deadlineLocal, setDeadlineLocal] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loadedEventId, setLoadedEventId] = useState<number | null>(null);
 
@@ -51,7 +54,30 @@ export const EventForm: React.FC = () => {
       status: existingEvent.status || 'Gələcəkdə',
       registration_deadline: existingEvent.registration_deadline || '',
     });
+    setDateLocal(toDateTimeLocalValue(existingEvent.date));
+    setDeadlineLocal(toDateTimeLocalValue(existingEvent.registration_deadline));
   }
+
+  const handleDateChange = (val: string) => {
+    setDateLocal(val);
+    const formatted = formatToAzerbaijaniDate(val);
+    setFormData((prev) => ({ ...prev, date: formatted }));
+  };
+
+  const handleDeadlineChange = (val: string) => {
+    setDeadlineLocal(val);
+    const formatted = val ? formatToAzerbaijaniDate(val) : '';
+    setFormData((prev) => ({ ...prev, registration_deadline: formatted }));
+  };
+
+  const setQuickDeadline = (hoursBefore: number) => {
+    if (!dateLocal) return;
+    const d = new Date(dateLocal);
+    d.setHours(d.getHours() - hoursBefore);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const val = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    handleDeadlineChange(val);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +85,16 @@ export const EventForm: React.FC = () => {
 
     if (formData.capacity <= 0) {
       setErrorMessage('Tutum ən azı 1 olmalıdır.');
+      return;
+    }
+
+    if (!formData.date) {
+      setErrorMessage('Tədbirin tarix və saatını seçin.');
+      return;
+    }
+
+    if (dateLocal && deadlineLocal && deadlineLocal > dateLocal) {
+      setErrorMessage('Son qeydiyyat tarixi tədbir tarixindən sonraya təyin edilə bilməz.');
       return;
     }
 
@@ -177,16 +213,20 @@ export const EventForm: React.FC = () => {
                 Tarix və Saat
               </label>
               <div className="relative">
-                <Calendar className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Calendar className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
-                  type="text"
+                  type="datetime-local"
                   required
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  placeholder="Məsələn: 15 Noyabr 2026, 10:00"
-                  className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
+                  value={dateLocal}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary focus:outline-none focus:border-accent text-sm cursor-pointer"
                 />
               </div>
+              {formData.date && (
+                <p className="text-[11px] text-accent font-semibold mt-1 truncate">
+                  Seçildi: {formData.date}
+                </p>
+              )}
             </div>
 
             <div>
@@ -194,15 +234,41 @@ export const EventForm: React.FC = () => {
                 Son Qeydiyyat Tarixi
               </label>
               <div className="relative">
-                <Clock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Clock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
-                  type="text"
-                  value={formData.registration_deadline}
-                  onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
-                  placeholder="İxtiyari (boşsa tədbir vaxtı götürülür)"
-                  className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
+                  type="datetime-local"
+                  value={deadlineLocal}
+                  max={dateLocal || undefined}
+                  onChange={(e) => handleDeadlineChange(e.target.value)}
+                  className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary focus:outline-none focus:border-accent text-sm cursor-pointer"
                 />
               </div>
+              {dateLocal && (
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className="text-[10px] text-secondary">Tez seç:</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuickDeadline(0)}
+                    className="text-[10px] px-2 py-0.5 bg-cream hover:bg-borderBeige/60 text-secondary hover:text-primary rounded-md transition cursor-pointer"
+                  >
+                    Eyni vaxt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickDeadline(2)}
+                    className="text-[10px] px-2 py-0.5 bg-cream hover:bg-borderBeige/60 text-secondary hover:text-primary rounded-md transition cursor-pointer"
+                  >
+                    2 saat əvvəl
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickDeadline(24)}
+                    className="text-[10px] px-2 py-0.5 bg-cream hover:bg-borderBeige/60 text-secondary hover:text-primary rounded-md transition cursor-pointer"
+                  >
+                    1 gün əvvəl
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

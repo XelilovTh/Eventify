@@ -57,3 +57,30 @@ export const isDatePassed = (dateStr?: string | null): boolean => {
   if (!timestamp) return false;
   return Date.now() > timestamp;
 };
+
+const AZ_MONTH_NAMES = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+];
+
+export const formatToAzerbaijaniDate = (input?: string | Date | number | null): string => {
+  if (!input) return '';
+  const ts = typeof input === 'number' ? input : (parseAzerbaijaniDate(String(input)) || Date.parse(String(input)));
+  if (!ts || isNaN(ts)) return String(input);
+  const d = new Date(ts);
+  const day = d.getDate();
+  const month = AZ_MONTH_NAMES[d.getMonth()];
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year}, ${hours}:${minutes}`;
+};
+
+export const toDateTimeLocalValue = (dateStr?: string | null): string => {
+  if (!dateStr) return '';
+  const ts = parseAzerbaijaniDate(dateStr) || Date.parse(dateStr);
+  if (!ts || isNaN(ts)) return '';
+  const d = new Date(ts);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
