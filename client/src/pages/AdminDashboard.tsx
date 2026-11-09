@@ -345,7 +345,7 @@ export const AdminDashboard: React.FC = () => {
                             </button>
 
                             <Link
-                              to={`/admin/events/${event.id}/edit`}
+                              to={`/admin/events/edit/${event.id}`}
                               className="p-2 bg-accent/20 hover:bg-accent/30 text-primary rounded-xl transition"
                               title="Redaktə et"
                             >

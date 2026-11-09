@@ -68,6 +68,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/events/:id/edit"
+            element={
+              <ProtectedRoute adminOnly>
+                <EventForm />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
