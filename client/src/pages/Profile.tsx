@@ -2,27 +2,29 @@
 // Bu fayl istifadəçinin sırf şəxsi profilini və hesab parametrlərini (ad/şifrə yeniləmə) idarə edən səhifədir.
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   useGetMyRegistrationsQuery, 
   useUpdateProfileMutation 
 } from '../api/apiSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { updateUser } from '../features/auth/authSlice';
+import { updateUser, logout } from '../features/auth/authSlice';
 import { 
   User, 
   Lock, 
   CheckCircle, 
   AlertCircle, 
   Save, 
-  Star,
-  Ticket,
-  ArrowRight
+  Star, 
+  Ticket, 
+  ArrowRight,
+  LogOut
 } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const { data: myEvents } = useGetMyRegistrationsQuery();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
@@ -30,6 +32,13 @@ export const Profile: React.FC = () => {
   const [name, setName] = useState(user?.name || '');
   const [newPassword, setNewPassword] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleLogout = () => {
+    if (window.confirm('Hesabınızdan çıxış etmək istədiyinizdən əminsiniz?')) {
+      dispatch(logout());
+      navigate('/login');
+    }
+  };
 
   // Favorilərin sayını oxuyuruq
   const savedFavs = localStorage.getItem('eventify_favs');
@@ -188,6 +197,25 @@ export const Profile: React.FC = () => {
             <span>{isUpdating ? 'Yadda saxlanılır...' : 'Dəyişiklikləri Yadda Saxla'}</span>
           </button>
         </form>
+
+        {/* 4. Hesabdan Çıxış Bölməsi */}
+        <div className="mt-10 pt-6 border-t border-borderBeige/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-bold text-primary">Sessiyanı Sonlandır</h3>
+            <p className="text-xs text-secondary mt-0.5">
+              Cari cihazda aktiv olan hesabınızdan təhlükəsiz şəkildə çıxış edin.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center space-x-2 px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold rounded-xl text-xs transition duration-150 shadow-sm self-start sm:self-auto cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Hesabdan Çıxış Et</span>
+          </button>
+        </div>
       </div>
     </div>
   );

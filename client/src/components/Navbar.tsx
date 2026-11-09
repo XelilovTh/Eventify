@@ -3,29 +3,20 @@
 // Pill formalı keçidlər (Ana səhifə, Tədbirlər, Mənim qeydiyyatlarım, Seçilmişlər), bildiriş zəngi və istifadəçi profili.
 
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { logout } from '../features/auth/authSlice';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppSelector } from '../app/hooks';
 import { 
   Calendar, 
   Home, 
   Ticket, 
   Heart, 
-  LogOut, 
   ShieldAlert, 
   ChevronDown 
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -112,15 +103,6 @@ export const Navbar: React.FC = () => {
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-secondary" />
                 </Link>
-
-                {/* Çıxış düyməsi */}
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-secondary hover:text-red-600 rounded-full hover:bg-red-50 transition"
-                  title="Çıxış"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
               </>
             ) : (
               <div className="flex items-center space-x-3">
