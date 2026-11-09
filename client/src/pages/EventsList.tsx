@@ -24,6 +24,8 @@ import {
   Heart
 } from 'lucide-react';
 import { parseAzerbaijaniDate } from '../utils/dateUtils';
+import { useFavorites } from '../hooks/useFavorites';
+import type { StatusFilter, DateSortOrder } from '../types';
 
 // Mockup-dakı 8 kateqoriya
 const CATEGORIES = [
@@ -42,24 +44,11 @@ export const EventsList: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Gələcəkdə' | 'Davam edir' | 'Bitib'>('Gələcəkdə');
-  const [sortByDate, setSortByDate] = useState<'asc' | 'desc'>('asc');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Gələcəkdə');
+  const [sortByDate, setSortByDate] = useState<DateSortOrder>('asc');
 
-  // Favorilər (localStorage ilə saxlanılır)
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    const saved = localStorage.getItem('eventify_favs');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const toggleFavorite = (id: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setFavorites((prev) => {
-      const updated = prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id];
-      localStorage.setItem('eventify_favs', JSON.stringify(updated));
-      return updated;
-    });
-  };
+  // Mərkəzləşdirilmiş və reaktiv favorilər hook-u
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   // Yavaş və axıcı sürüşdürmə (Smooth scroll)
   const scrollToEvents = (e: React.MouseEvent) => {
@@ -76,12 +65,9 @@ export const EventsList: React.FC = () => {
 
     return events
       .filter((ev) => {
-        // Kateqoriya filtri
+        // Kateqoriya filtri (birbaşa və təmiz uyğunluq)
         const matchesCategory =
-          selectedCategory === 'all' ||
-          ev.category === selectedCategory ||
-          (selectedCategory === 'Texnologiya' && ev.category === 'Konfranslar') ||
-          (selectedCategory === 'İncəsənət' && ev.category === 'Digər');
+          selectedCategory === 'all' || ev.category === selectedCategory;
 
         // Axtarış mətni
         const query = searchTerm.toLowerCase().trim();
@@ -190,7 +176,7 @@ export const EventsList: React.FC = () => {
           <div className="relative">
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
               className="appearance-none bg-white border border-borderBeige rounded-2xl pl-4 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
             >
               <option value="Gələcəkdə">Gələcəkdə</option>
@@ -203,7 +189,7 @@ export const EventsList: React.FC = () => {
           <div className="relative">
             <select
               value={sortByDate}
-              onChange={(e) => setSortByDate(e.target.value as any)}
+              onChange={(e) => setSortByDate(e.target.value as DateSortOrder)}
               className="appearance-none bg-white border border-borderBeige rounded-2xl pl-9 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
             >
               <option value="asc">Tarixə görə (Yaxın)</option>
@@ -248,7 +234,7 @@ export const EventsList: React.FC = () => {
           {filteredEvents.map((event) => {
             const registered = event.registered_count || 0;
             const availableSeats = Math.max(0, event.capacity - registered);
-            const isFav = favorites.includes(event.id);
+            const isFav = isFavorite(event.id);
 
             const status = event.status || 'Gələcəkdə';
             const statusConfig = {
@@ -322,7 +308,12 @@ export const EventsList: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     {/* Bəyənmə (Heart) Düyməsi */}
                     <button
-                      onClick={(e) => toggleFavorite(event.id, e)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleFavorite(event.id);
+                      }}
                       className={`p-2.5 rounded-2xl border transition duration-150 ${
                         isFav
                           ? 'bg-red-50 border-red-200 text-red-600'

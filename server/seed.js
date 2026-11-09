@@ -12,9 +12,10 @@ db.serialize(() => {
       '15 Noyabr 2026, 10:00',
       'Bakı Konqres Mərkəzi',
       120,
-      'Konfranslar',
+      'Texnologiya',
       'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
       'Gələcəkdə',
+      '14 Noyabr 2026, 23:59',
       1
     ],
     [
@@ -26,6 +27,7 @@ db.serialize(() => {
       'Festivallar',
       'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1000&q=80',
       'Davam edir',
+      '19 Oktyabr 2026, 23:59',
       1
     ],
     [
@@ -37,6 +39,7 @@ db.serialize(() => {
       'Seminarlar',
       'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1000&q=80',
       'Bitib',
+      '09 Oktyabr 2026, 23:59',
       1
     ],
     [
@@ -45,9 +48,10 @@ db.serialize(() => {
       '25 Noyabr 2026, 12:00',
       'Heydər Əliyev Mərkəzi',
       80,
-      'Digər',
+      'İncəsənət',
       'https://images.unsplash.com/photo-1531247483471-9299c65604d0?auto=format&fit=crop&w=1000&q=80',
       'Gələcəkdə',
+      '24 Noyabr 2026, 23:59',
       1
     ],
     [
@@ -59,6 +63,7 @@ db.serialize(() => {
       'Seminarlar',
       'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1000&q=80',
       'Gələcəkdə',
+      '30 Noyabr 2026, 23:59',
       1
     ],
     [
@@ -70,18 +75,19 @@ db.serialize(() => {
       'İdman',
       'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
       'Davam edir',
+      '17 Oktyabr 2026, 23:59',
       1
     ]
   ];
 
   const stmt = db.prepare(`
-    INSERT INTO events (title, description, date, location, capacity, category, image_url, status, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO events (title, description, date, location, capacity, category, image_url, status, registration_deadline, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   events.forEach(ev => stmt.run(ev));
   stmt.finalize(() => {
-    console.log('Şəkildəki 6 real tədbir uğurla bazaya yazıldı!');
+    console.log('Şəkildəki 6 real tədbir (son qeydiyyat tarixi ilə) uğurla bazaya yazıldı!');
     process.exit(0);
   });
 });

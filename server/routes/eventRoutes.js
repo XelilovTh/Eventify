@@ -5,38 +5,20 @@
 import express from 'express';
 import db from '../db.js';
 import { authenticate, requireAdmin } from '../middleware/authMiddleware.js';
+import { parseEventDate, isDatePassed } from '../utils/dateUtils.js';
 
 const router = express.Router();
 
-// Tarix sətirlərini millisaniyəyə çevirən funksiya
-const parseEventDate = (dateStr) => {
-  if (!dateStr) return 0;
-  const months = {
-    yanvar: 0, fevral: 1, mart: 2, aprel: 3, may: 4, iyun: 5,
-    iyul: 6, avqust: 7, sentyabr: 8, oktyabr: 9, noyabr: 10, dekabr: 11
-  };
-  const parsedDirect = Date.parse(dateStr);
-  if (!isNaN(parsedDirect)) return parsedDirect;
-
-  const clean = dateStr.replace(/,/g, '').replace(/–/g, '-');
-  const parts = clean.split(' ').filter(Boolean);
-  if (parts.length >= 3) {
-    const day = parseInt(parts[0], 10);
-    const monthName = parts[1].toLowerCase();
-    const year = parseInt(parts[2], 10);
-    let hours = 23;
-    let minutes = 59;
-    if (parts[3] && parts[3].includes(':')) {
-      const timeParts = parts[3].split(':');
-      hours = parseInt(timeParts[0], 10) || 0;
-      minutes = parseInt(timeParts[1], 10) || 0;
-    }
-    if (months[monthName] !== undefined && !isNaN(day) && !isNaN(year)) {
-      return new Date(year, months[monthName], day, hours, minutes).getTime();
-    }
-  }
-  return 0;
-};
+export const ALLOWED_STATUSES = ['Gələcəkdə', 'Davam edir', 'Bitib'];
+export const ALLOWED_CATEGORIES = [
+  'Konfranslar',
+  'Seminarlar',
+  'Festivallar',
+  'İdman',
+  'İncəsənət',
+  'Texnologiya',
+  'Digər'
+];
 
 // ==========================================
 // 1. TƏDBİRLƏRİN BAXIŞI (HƏR KƏS ÜÇÜN AÇIQDIR)
@@ -131,19 +113,15 @@ router.post('/:id/register', authenticate, (req, res) => {
       return res.status(404).json({ message: 'Tədbir tapılmadı.' });
     }
 
-    // 2-ci Addım: Tədbirin statusunu yoxlayırıq (Bitib və ya Davam edirsə qeydiyyat qadağandır)
+    // 2-ci Addım: Tədbir admin tərəfindən 'Bitib' kimi qeyd olunubsa qeydiyyat qadağandır
     const statusNormalized = event.status ? event.status.trim().toLowerCase() : '';
     if (statusNormalized === 'bitib') {
       return res.status(400).json({ message: 'Bu tədbir artıq başa çatıb. Qeydiyyat mümkün deyil.' });
     }
-    if (statusNormalized === 'davam edir') {
-      return res.status(400).json({ message: 'Tədbir artıq başlayıb və davam edir. Yeni qeydiyyat dayandırılıb.' });
-    }
 
-    // 3-cü Addım: Son qeydiyyat tarixini yoxlayırıq
+    // 3-cü Addım: Son qeydiyyat tarixini tək həqiqət mənbəyi kimi yoxlayırıq
     const deadlineStr = event.registration_deadline || event.date;
-    const deadlineTime = parseEventDate(deadlineStr);
-    if (deadlineTime > 0 && Date.now() > deadlineTime) {
+    if (isDatePassed(deadlineStr)) {
       return res.status(400).json({ message: 'Bu tədbir üçün son qeydiyyat tarixi artıq bitib. Qeydiyyat qəbul olunmur.' });
     }
 
@@ -236,6 +214,14 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
     return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
   }
 
+  if (status && !ALLOWED_STATUSES.includes(status)) {
+    return res.status(400).json({ message: `Yanlış status. İcazə verilən: ${ALLOWED_STATUSES.join(', ')}` });
+  }
+
+  if (category && !ALLOWED_CATEGORIES.includes(category)) {
+    return res.status(400).json({ message: `Yanlış kateqoriya. İcazə verilən: ${ALLOWED_CATEGORIES.join(', ')}` });
+  }
+
   const sql = `
     INSERT INTO events (title, description, date, location, capacity, category, image_url, status, registration_deadline, created_by)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -243,21 +229,22 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
 
   db.run(
     sql,
-    [title, description, date, location, Number(capacity), category, image_url, status, registration_deadline, req.user.id],
+    [title, description, date, location, numCapacity, category, image_url, status, registration_deadline, req.user.id],
     function (err) {
       if (err) {
         return res.status(500).json({ message: 'Tədbir yaradılarkən xəta baş verdi.' });
       }
       res.status(201).json({
         message: 'Tədbir uğurla yaradıldı.',
-        event: { id: this.lastID, title, description, date, location, capacity: Number(capacity), category, image_url, status, registration_deadline }
+        event: { id: this.lastID, title, description, date, location, capacity: numCapacity, category, image_url, status, registration_deadline }
       });
     }
   );
 });
 
-// Tədbiri redaktə etmək
+// Tədbiri redaktə etmək (Bütün sahələrin və tutumun mövcud qeydiyyat sayından az olmamasının yoxlanışı)
 router.put('/:id', authenticate, requireAdmin, (req, res) => {
+  const eventId = req.params.id;
   const { 
     title, 
     description, 
@@ -270,30 +257,59 @@ router.put('/:id', authenticate, requireAdmin, (req, res) => {
     registration_deadline = ''
   } = req.body;
 
+  // 1. Vacib xanaların mövcudluğu
+  if (!title || !description || !date || !location || capacity === undefined) {
+    return res.status(400).json({ message: 'Bütün vacib xanaları doldurmaq mütləqdir.' });
+  }
+
+  // 2. Tutumun düzgünlüyü
   const numCapacity = Number(capacity);
-  if (capacity !== undefined && (isNaN(numCapacity) || numCapacity <= 0)) {
+  if (isNaN(numCapacity) || numCapacity <= 0) {
     return res.status(400).json({ message: 'Tutum ən azı 1 nəfər müsbət ədəd olmalıdır.' });
   }
 
-  const sql = `
-    UPDATE events
-    SET title = ?, description = ?, date = ?, location = ?, capacity = ?, category = ?, image_url = ?, status = ?, registration_deadline = ?
-    WHERE id = ?
-  `;
+  // 3. Status və kateqoriyanın düzgünlüyü
+  if (status && !ALLOWED_STATUSES.includes(status)) {
+    return res.status(400).json({ message: `Yanlış status. İcazə verilən: ${ALLOWED_STATUSES.join(', ')}` });
+  }
+  if (category && !ALLOWED_CATEGORIES.includes(category)) {
+    return res.status(400).json({ message: `Yanlış kateqoriya. İcazə verilən: ${ALLOWED_CATEGORIES.join(', ')}` });
+  }
 
-  db.run(
-    sql,
-    [title, description, date, location, Number(capacity), category, image_url, status, registration_deadline, req.params.id],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ message: 'Tədbir yenilənərkən xəta baş verdi.' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ message: 'Tədbir tapılmadı.' });
-      }
-      res.json({ message: 'Tədbir uğurla yeniləndi.' });
+  // 4. Tutum hazırkı qeydiyyat sayından az ola bilməz
+  const checkRegSql = `SELECT COUNT(*) AS current_regs FROM registrations WHERE event_id = ?`;
+  db.get(checkRegSql, [eventId], (countErr, row) => {
+    if (countErr) {
+      return res.status(500).json({ message: 'Qeydiyyat sayı yoxlanılarkən xəta baş verdi.' });
     }
-  );
+
+    const currentRegs = row ? row.current_regs : 0;
+    if (numCapacity < currentRegs) {
+      return res.status(400).json({ 
+        message: `Tutum hazırkı qeydiyyat sayından (${currentRegs} nəfər) az ola bilməz.` 
+      });
+    }
+
+    const sql = `
+      UPDATE events
+      SET title = ?, description = ?, date = ?, location = ?, capacity = ?, category = ?, image_url = ?, status = ?, registration_deadline = ?
+      WHERE id = ?
+    `;
+
+    db.run(
+      sql,
+      [title, description, date, location, numCapacity, category, image_url, status, registration_deadline, eventId],
+      function (err) {
+        if (err) {
+          return res.status(500).json({ message: 'Tədbir yenilənərkən xəta baş verdi.' });
+        }
+        if (this.changes === 0) {
+          return res.status(404).json({ message: 'Tədbir tapılmadı.' });
+        }
+        res.json({ message: 'Tədbir uğurla yeniləndi.' });
+      }
+    );
+  });
 });
 
 // Tədbiri silmək

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node --check index.js db.js routes/authRoutes.js routes/eventRoutes.js routes/adminRoutes.js"
+    "seed": "node seed.js",
+    "test": "node --check index.js db.js routes/authRoutes.js routes/eventRoutes.js routes/adminRoutes.js utils/dateUtils.js smoke_test.js && node smoke_test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

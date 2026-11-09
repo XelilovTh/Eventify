@@ -3,6 +3,8 @@
 // Hər bir sorğuya avtomatik JWT Token əlavə edir və məlumatları keşləyir.
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { logout } from '../features/auth/authSlice';
 import type { RootState } from '../app/store';
 import type { 
   AuthResponse, 
@@ -12,19 +14,46 @@ import type {
   User 
 } from '../types';
 
+const rawBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
+const baseUrl = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl,
+  // Hər bir sorğu göndərilərkən Redux state-dəki tokeni avtomatik Authorization header-ə əlavə edir
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.token;
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+// 401 və ya 403 xətalarında avtomatik logout edən və login-ə yönləndirən wrapper
+const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  const result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error && (result.error.status === 401 || result.error.status === 403)) {
+    const url = typeof args === 'string' ? args : args.url;
+    // Login və ya register sorğusu zamanı avtomatik yönləndirmə etmirik ki, xəta mesajı ekranda görünsün
+    if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+      api.dispatch(logout());
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+    }
+  }
+
+  return result;
+};
+
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
-    baseUrl: (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api',
-    // Hər bir sorğu göndərilərkən Redux state-dəki tokeni avtomatik Authorization header-ə əlavə edir
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   // Keş teqləri: Tədbir yaradıldıqda və ya silindikdə siyahını avtomatik yeniləmək üçün
   tagTypes: ['Events', 'EventDetails', 'Registrations', 'AdminUsers', 'AdminStats'],
 

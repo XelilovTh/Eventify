@@ -35,11 +35,6 @@ export const Login: React.FC = () => {
     }
   };
 
-  const fillAdmin = () => {
-    setEmail('admin@eventify.com');
-    setPassword('admin123');
-  };
-
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white border border-borderBeige rounded-3xl p-8 shadow-xl">
@@ -102,17 +97,6 @@ export const Login: React.FC = () => {
             {isLoading ? 'Daxil olunur...' : 'Daxil ol'}
           </button>
         </form>
-
-        {/* Test üçün Admin doldurma köməkçisi */}
-        <div className="mt-5 pt-4 border-t border-borderBeige text-center">
-          <button
-            type="button"
-            onClick={fillAdmin}
-            className="text-xs text-secondary hover:text-accent font-medium underline transition"
-          >
-            Admin məlumatlarını avtomatik doldur (admin@eventify.com)
-          </button>
-        </div>
 
         <p className="mt-6 text-center text-sm text-secondary">
           Hesabınız yoxdur?{' '}

@@ -2,9 +2,10 @@
 // Bu fayl mockup Şəkil 1-dəki dizayna tam uyğunlaşdırılmış naviqasiya panelidir:
 // Pill formalı keçidlər (Ana səhifə, Tədbirlər, Mənim qeydiyyatlarım, Seçilmişlər), bildiriş zəngi və istifadəçi profili.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../app/hooks';
+import { useFavorites } from '../hooks/useFavorites';
 import { 
   Calendar, 
   Home, 
@@ -19,13 +20,16 @@ import {
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { favoritesCount } = useFavorites();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [prevPath, setPrevPath] = useState(location.pathname);
 
   // Səhifə dəyişəndə mobil menyunu avtomatik bağlayırıq
-  useEffect(() => {
+  if (prevPath !== location.pathname) {
+    setPrevPath(location.pathname);
     setMobileMenuOpen(false);
-  }, [location.pathname]);
+  }
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -55,6 +59,24 @@ export const Navbar: React.FC = () => {
               <span>Ana səhifə</span>
             </Link>
 
+            {/* Seçilmişlər (həm qonaqlar, həm də daxil olmuş istifadəçilər üçün) */}
+            <Link
+              to="/favorites"
+              className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
+                isActive('/favorites')
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-secondary hover:text-primary hover:bg-cream/60'
+              }`}
+            >
+              <Heart className="w-4 h-4" />
+              <span>Seçilmişlər</span>
+              {favoritesCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 text-[10px] font-black bg-accent text-white rounded-full">
+                  {favoritesCount}
+                </span>
+              )}
+            </Link>
+
             {isAuthenticated && (
               <>
                 <Link
@@ -67,18 +89,6 @@ export const Navbar: React.FC = () => {
                 >
                   <Ticket className="w-4 h-4" />
                   <span>Mənim qeydiyyatlarım</span>
-                </Link>
-
-                <Link
-                  to="/favorites"
-                  className={`inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold transition duration-200 ${
-                    isActive('/favorites')
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'text-secondary hover:text-primary hover:bg-cream/60'
-                  }`}
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Seçilmişlər</span>
                 </Link>
 
                 {/* Yalnız Admin olduqda Admin Dashboard linki */}
@@ -152,6 +162,24 @@ export const Navbar: React.FC = () => {
             <span>Ana səhifə</span>
           </Link>
 
+          {/* Seçilmişlər (Hamı üçün) */}
+          <Link
+            to="/favorites"
+            className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition ${
+              isActive('/favorites') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
+            }`}
+          >
+            <div className="flex items-center space-x-2.5">
+              <Heart className="w-4 h-4" />
+              <span>Seçilmişlər</span>
+            </div>
+            {favoritesCount > 0 && (
+              <span className="px-2 py-0.5 text-[10px] font-black bg-accent text-white rounded-full">
+                {favoritesCount}
+              </span>
+            )}
+          </Link>
+
           {isAuthenticated ? (
             <>
               <Link
@@ -162,16 +190,6 @@ export const Navbar: React.FC = () => {
               >
                 <Ticket className="w-4 h-4" />
                 <span>Mənim qeydiyyatlarım</span>
-              </Link>
-
-              <Link
-                to="/favorites"
-                className={`flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition ${
-                  isActive('/favorites') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
-                }`}
-              >
-                <Heart className="w-4 h-4" />
-                <span>Seçilmişlər</span>
               </Link>
 
               <Link

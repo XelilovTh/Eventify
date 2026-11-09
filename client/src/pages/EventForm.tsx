@@ -1,7 +1,7 @@
 // client/src/pages/EventForm.tsx
 // Bu fayl Admin üçün həm YENİ tədbir yaratmaq, həm də MÖVCUD tədbiri redaktə etmək üçün qəhvəyi tonlu formadır.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   useCreateEventMutation, 
@@ -9,6 +9,8 @@ import {
   useGetEventByIdQuery 
 } from '../api/apiSlice';
 import { Calendar, MapPin, Users, FileText, ArrowLeft, Save, Clock } from 'lucide-react';
+import { EVENT_CATEGORIES } from '../types';
+import type { EventStatus } from '../types';
 
 export const EventForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,22 +39,22 @@ export const EventForm: React.FC = () => {
   });
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [loadedEventId, setLoadedEventId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (existingEvent) {
-      setFormData({
-        title: existingEvent.title,
-        description: existingEvent.description,
-        date: existingEvent.date,
-        location: existingEvent.location,
-        capacity: existingEvent.capacity,
-        category: existingEvent.category || 'Konfranslar',
-        image_url: existingEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
-        status: (existingEvent.status as any) || 'Gələcəkdə',
-        registration_deadline: existingEvent.registration_deadline || '',
-      });
-    }
-  }, [existingEvent]);
+  if (existingEvent && loadedEventId !== existingEvent.id) {
+    setLoadedEventId(existingEvent.id);
+    setFormData({
+      title: existingEvent.title,
+      description: existingEvent.description,
+      date: existingEvent.date,
+      location: existingEvent.location,
+      capacity: existingEvent.capacity,
+      category: existingEvent.category || 'Konfranslar',
+      image_url: existingEvent.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80',
+      status: existingEvent.status || 'Gələcəkdə',
+      registration_deadline: existingEvent.registration_deadline || '',
+    });
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,13 +132,11 @@ export const EventForm: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full bg-cream/40 border border-borderBeige rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent text-sm font-medium"
               >
-                <option value="Konfranslar">Konfranslar</option>
-                <option value="Seminarlar">Seminarlar</option>
-                <option value="Festivallar">Festivallar</option>
-                <option value="İdman">İdman</option>
-                <option value="İncəsənət">İncəsənət</option>
-                <option value="Texnologiya">Texnologiya</option>
-                <option value="Digər">Digər</option>
+                {EVENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -146,7 +146,7 @@ export const EventForm: React.FC = () => {
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as EventStatus })}
                 className="w-full bg-cream/40 border border-borderBeige rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent text-sm font-medium"
               >
                 <option value="Gələcəkdə">● Gələcəkdə</option>

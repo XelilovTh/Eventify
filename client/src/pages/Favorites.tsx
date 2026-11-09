@@ -1,24 +1,15 @@
 // client/src/pages/Favorites.tsx
 // Bu fayl istifadəçinin bəyəndiyi (ürək ikonuna kliklədiyi) seçilmiş tədbirləri göstərir.
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useGetEventsQuery } from '../api/apiSlice';
+import { useFavorites } from '../hooks/useFavorites';
 import { Calendar, MapPin, Users, ArrowRight, Heart, ArrowLeft } from 'lucide-react';
 
 export const Favorites: React.FC = () => {
   const { data: events, isLoading } = useGetEventsQuery();
-
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    const saved = localStorage.getItem('eventify_favs');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const removeFavorite = (id: number) => {
-    const updated = favorites.filter((favId) => favId !== id);
-    setFavorites(updated);
-    localStorage.setItem('eventify_favs', JSON.stringify(updated));
-  };
+  const { favorites, removeFavorite } = useFavorites();
 
   const favoriteEvents = events?.filter((ev) => favorites.includes(ev.id)) || [];
 

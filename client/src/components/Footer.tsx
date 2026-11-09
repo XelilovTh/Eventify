@@ -56,18 +56,18 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="text-xs font-bold text-accent uppercase tracking-wider mb-4">Tədbir Növləri</h4>
             <ul className="space-y-2.5 text-xs text-cream/70 font-medium">
-              <li><span className="hover:text-white cursor-pointer transition">Konfranslar</span></li>
-              <li><span className="hover:text-white cursor-pointer transition">Seminarlar</span></li>
-              <li><span className="hover:text-white cursor-pointer transition">Festivallar</span></li>
-              <li><span className="hover:text-white cursor-pointer transition">İdman və Sağlamlıq</span></li>
-              <li><span className="hover:text-white cursor-pointer transition">Texnologiya</span></li>
+              <li><Link to="/" className="hover:text-white transition">Konfranslar</Link></li>
+              <li><Link to="/" className="hover:text-white transition">Seminarlar</Link></li>
+              <li><Link to="/" className="hover:text-white transition">Festivallar</Link></li>
+              <li><Link to="/" className="hover:text-white transition">İdman və Sağlamlıq</Link></li>
+              <li><Link to="/" className="hover:text-white transition">Texnologiya</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Alt Müəlliflik Hüququ Zolağı */}
         <div className="pt-8 border-t border-cream/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream/60">
-          <p>© {new Date().getFullYear()} Eventify.</p>
+          <p>© 2026 Eventify. Bütün hüquqlar qorunur.</p>
         </div>
       </div>
     </footer>

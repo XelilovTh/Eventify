@@ -9,6 +9,7 @@ import {
 } from '../api/apiSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { updateUser, logout } from '../features/auth/authSlice';
+import { useFavorites } from '../hooks/useFavorites';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { 
   User, 
@@ -40,9 +41,8 @@ export const Profile: React.FC = () => {
     navigate('/login');
   };
 
-  // Favorilərin sayını oxuyuruq
-  const savedFavs = localStorage.getItem('eventify_favs');
-  const favCount = savedFavs ? JSON.parse(savedFavs).length : 0;
+  // Reaktiv favorilərin sayı
+  const { favoritesCount: favCount } = useFavorites();
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();

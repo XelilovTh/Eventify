@@ -56,12 +56,12 @@ export const EventDetail: React.FC = () => {
   const isEnded = statusLower === 'bitib';
   const isOngoing = statusLower === 'davam edir';
 
-  // Son qeydiyyat tarixi yoxlanışı
+  // Son qeydiyyat tarixi (deadline) qeydiyyat üçün tək həqiqət mənbəyidir
   const deadlineStr = event?.registration_deadline || event?.date || '';
   const isDeadlinePassed = isDatePassed(deadlineStr);
 
-  // Qeydiyyatın bağlı olma vəziyyəti
-  const isRegistrationClosed = isEnded || isOngoing || isDeadlinePassed;
+  // Qeydiyyatın bağlı olma vəziyyəti: Yalnız tədbir bitibsə və ya son qeydiyyat tarixi keçibsə bloklanır
+  const isRegistrationClosed = isEnded || isDeadlinePassed;
 
   const isFull = event ? (registeredCount >= event.capacity) : false;
   const availableSeats = event ? Math.max(0, event.capacity - registeredCount) : 0;
@@ -243,21 +243,6 @@ export const EventDetail: React.FC = () => {
                 className="w-full sm:w-auto px-6 py-3.5 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
               >
                 Tədbir artıq başa çatıb (Qeydiyyat bağlıdır)
-              </button>
-            </div>
-          ) : isOngoing ? (
-            <div className="flex items-center space-x-2">
-              {isRegistered && (
-                <span className="inline-flex items-center space-x-1.5 text-amber-700 text-xs font-bold mr-2">
-                  <CheckCircle className="w-4 h-4 text-amber-600" />
-                  <span>Qeydiyyatınız mövcuddur</span>
-                </span>
-              )}
-              <button
-                disabled
-                className="w-full sm:w-auto px-6 py-3.5 bg-amber-100 text-amber-800 font-bold rounded-2xl text-xs cursor-not-allowed shadow-inner"
-              >
-                Tədbir artıq başlayıb (Qeydiyyat dayandırılıb)
               </button>
             </div>
           ) : isDeadlinePassed ? (

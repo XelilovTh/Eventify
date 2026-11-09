@@ -5,6 +5,24 @@
 // İstifadəçi rolu yalnız bu iki dəyərdən biri ola bilər
 export type UserRole = 'user' | 'admin';
 
+// Tədbir statusları və filtrləri
+export type EventStatus = 'Gələcəkdə' | 'Davam edir' | 'Bitib';
+export type StatusFilter = 'all' | EventStatus;
+export type DateSortOrder = 'asc' | 'desc';
+
+// Tədbir kateqoriyaları
+export const EVENT_CATEGORIES = [
+  'Konfranslar',
+  'Seminarlar',
+  'Festivallar',
+  'İdman',
+  'İncəsənət',
+  'Texnologiya',
+  'Digər'
+] as const;
+
+export type EventCategory = typeof EVENT_CATEGORIES[number];
+
 // İstifadəçi modeli
 export interface User {
   id: number;
@@ -23,7 +41,7 @@ export interface EventItem {
   capacity: number;
   category?: string;
   image_url?: string;
-  status?: 'Gələcəkdə' | 'Davam edir' | 'Bitib';
+  status?: EventStatus;
   registration_deadline?: string;
   created_by?: number;
   registered_count?: number; // Tədbirə indiyədək yazılanların sayı

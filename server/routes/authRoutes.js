@@ -9,20 +9,26 @@ import db from '../db.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('Kritik xəta: JWT_SECRET mühit dəyişəni təyin olunmayıb. Server işə düşə bilməz.');
+}
 
 // 1. Qeydiyyat (Register)
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
+  const trimmedName = name ? String(name).trim() : '';
+  const trimmedEmail = email ? String(email).trim().toLowerCase() : '';
+
   // 1. Validasiya: Boş sahə olmamalıdır
-  if (!name || !email || !password) {
+  if (!trimmedName || !trimmedEmail || !password) {
     return res.status(400).json({ message: 'Zəhmət olmasa bütün xanaları doldurun.' });
   }
 
   // 2. E-poçt formatı validasiyası
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(trimmedEmail)) {
     return res.status(400).json({ message: 'Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.' });
   }
 
@@ -33,7 +39,7 @@ router.post('/register', async (req, res) => {
 
   // E-poçtun artıq mövcud olub-olmadığını yoxlayırıq
   const checkSql = `SELECT * FROM users WHERE email = ?`;
-  db.get(checkSql, [email.toLowerCase()], async (err, user) => {
+  db.get(checkSql, [trimmedEmail], async (err, user) => {
     if (err) {
       return res.status(500).json({ message: 'Baza xətası baş verdi.' });
     }
@@ -46,7 +52,7 @@ router.post('/register', async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const insertSql = `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')`;
-      db.run(insertSql, [name, email.toLowerCase(), hashedPassword], function (err) {
+      db.run(insertSql, [trimmedName, trimmedEmail, hashedPassword], function (err) {
         if (err) {
           return res.status(500).json({ message: 'İstifadəçi yaradılarkən xəta baş verdi.' });
         }
@@ -54,7 +60,7 @@ router.post('/register', async (req, res) => {
         // Yeni istifadəçi üçün JWT token hazırlayırıq
         const newUserId = this.lastID;
         const token = jwt.sign(
-          { id: newUserId, email: email.toLowerCase(), role: 'user' },
+          { id: newUserId, email: trimmedEmail, role: 'user' },
           JWT_SECRET,
           { expiresIn: '7d' }
         );
@@ -62,7 +68,7 @@ router.post('/register', async (req, res) => {
         res.status(201).json({
           message: 'Qeydiyyat uğurla tamamlandı.',
           token,
-          user: { id: newUserId, name, email: email.toLowerCase(), role: 'user' }
+          user: { id: newUserId, name: trimmedName, email: trimmedEmail, role: 'user' }
         });
       });
     } catch (hashErr) {

@@ -6,7 +6,10 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('Kritik xəta: JWT_SECRET mühit dəyişəni təyin olunmayıb. Server işə düşə bilməz.');
+}
 
 // 1. İstifadəçinin daxil olduğunu (tokenin etibarlı olduğunu) yoxlayan middleware
 export const authenticate = (req, res, next) => {
