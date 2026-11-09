@@ -22,6 +22,12 @@ export const Register: React.FC = () => {
     e.preventDefault();
     setErrorMessage('');
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      setErrorMessage('Zəhmət olmasa düzgün e-poçt ünvanı daxil edin (məs: nümunə@mail.com).');
+      return;
+    }
+
     if (password.length < 6) {
       setErrorMessage('Şifrə ən azı 6 simvoldan ibarət olmalıdır.');
       return;

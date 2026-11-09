@@ -26,8 +26,8 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Zəhmət olmasa bütün xanaları doldurun.' });
   }
 
-  // 2. E-poçt formatı validasiyası
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // 2. E-poçt formatı validasiyası (domen sonluğu ən azı 2 hərf olmalıdır: .az, .com və s.)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(trimmedEmail)) {
     return res.status(400).json({ message: 'Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.' });
   }
