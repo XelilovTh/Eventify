@@ -127,16 +127,17 @@ export const EventsList: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* 1. MÖHTƏŞƏM HERO BANNER (Bakı Alov Qüllələri panoraması ilə - Şəkil 1) */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-[#24130A] via-[#3B2418] to-[#603A26] text-white shadow-xl min-h-[280px] flex items-center">
-        {/* Sağ tərəf Bakı silueti şəkli */}
-        <div className="absolute right-0 top-0 bottom-0 w-full md:w-3/5 opacity-40 md:opacity-90 overflow-hidden pointer-events-none">
+      {/* 1. MÖHTƏŞƏM HERO BANNER (Bakı Alov Qüllələri panoraması ilə) */}
+      <div className="relative overflow-hidden rounded-[2.5rem] text-white shadow-xl min-h-[300px] flex items-center bg-[#24130A]">
+        {/* Panoramik Bakı Şəkli */}
+        <div className="absolute inset-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1549144511-f099e773c147?auto=format&fit=crop&w=1200&q=80"
-            alt="Baku Cityscape"
-            className="w-full h-full object-cover object-center mix-blend-luminosity filter contrast-125"
+            src="/baku-banner.jpg"
+            alt="Bakı Alov Qüllələri"
+            className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#24130A] via-transparent to-transparent"></div>
+          {/* Mətnin aydın oxunması üçün soldan sağa qaranlıq tünd qəhvəyi qradiyent */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#24130A]/95 via-[#24130A]/70 to-transparent"></div>
         </div>
 
         {/* Banner Mətn Hissəsi */}
@@ -145,7 +146,7 @@ export const EventsList: React.FC = () => {
             Maraqlı tədbirləri <br />
             <span className="text-[#C49A6C]">Eventify</span> ilə kəşf et!
           </h1>
-          <p className="text-cream/80 text-sm sm:text-base leading-relaxed">
+          <p className="text-cream/90 text-sm sm:text-base leading-relaxed">
             Konfranslar, seminarlar, festivallar və daha çoxu – hamısı bir yerdə.
           </p>
           <div className="pt-2">
