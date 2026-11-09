@@ -266,6 +266,10 @@ export const EventsList: React.FC = () => {
                     <img
                       src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
                       alt={event.title}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
 

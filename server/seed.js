@@ -49,7 +49,7 @@ db.serialize(() => {
       'Heydər Əliyev Mərkəzi',
       80,
       'İncəsənət',
-      'https://images.unsplash.com/photo-1531247483471-9299c65604d0?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80',
       'Gələcəkdə',
       '24 Noyabr 2026, 23:59',
       1
@@ -73,7 +73,7 @@ db.serialize(() => {
       'Dalğa Arena',
       30,
       'İdman',
-      'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1000&q=80',
       'Davam edir',
       '17 Oktyabr 2026, 23:59',
       1
