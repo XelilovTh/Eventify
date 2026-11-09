@@ -122,8 +122,7 @@ export const Profile: React.FC = () => {
             </Link>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-borderBeige/60 flex items-center justify-between text-xs text-secondary">
-            <span>Sistem statusu: <b className="text-emerald-700">Aktiv</b></span>
+          <div className="mt-4 pt-4 border-t border-borderBeige/60 flex items-center justify-end text-xs text-secondary">
             <span>İstifadəçi ID: #{user?.id}</span>
           </div>
         </div>
