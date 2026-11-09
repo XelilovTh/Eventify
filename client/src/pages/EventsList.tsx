@@ -182,12 +182,12 @@ export const EventsList: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
-          <div className="relative">
+        <div className="grid grid-cols-2 gap-2.5 w-full md:flex md:w-auto md:items-center md:space-x-2">
+          <div className="relative w-full">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className="appearance-none bg-white border border-borderBeige rounded-2xl pl-4 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
+              className="w-full appearance-none bg-white border border-borderBeige rounded-2xl px-4 py-3 text-center text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm truncate"
             >
               <option value="Gələcəkdə">Gələcəkdə</option>
               <option value="Davam edir">Davam edir</option>
@@ -196,11 +196,11 @@ export const EventsList: React.FC = () => {
             </select>
           </div>
 
-          <div className="relative">
+          <div className="relative w-full">
             <select
               value={sortByDate}
               onChange={(e) => setSortByDate(e.target.value as DateSortOrder)}
-              className="appearance-none bg-white border border-borderBeige rounded-2xl pl-9 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
+              className="w-full appearance-none bg-white border border-borderBeige rounded-2xl pl-8 pr-3 py-3 text-center text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm truncate"
             >
               <option value="asc">Tarixə görə (Yaxın)</option>
               <option value="desc">Tarixə görə (Uzaq)</option>

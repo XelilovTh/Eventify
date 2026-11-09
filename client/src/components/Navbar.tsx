@@ -108,16 +108,16 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className="w-3.5 h-3.5 text-secondary hidden sm:inline-block" />
               </Link>
             ) : (
-              <div className="hidden sm:flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <Link
                   to="/login"
-                  className="text-primary hover:text-accent font-semibold px-3 py-2 text-xs transition"
+                  className="hidden sm:inline-block text-primary hover:text-accent font-semibold px-3 py-2 text-xs transition"
                 >
                   Daxil ol
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm"
+                  className="bg-primary hover:bg-primary-hover text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition shadow-sm"
                 >
                   Qeydiyyat
                 </Link>
