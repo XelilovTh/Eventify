@@ -42,6 +42,7 @@ export const EventsList: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Gələcəkdə' | 'Davam edir' | 'Bitib'>('Gələcəkdə');
   const [sortByDate, setSortByDate] = useState<'asc' | 'desc'>('asc');
 
   // Favorilər (localStorage ilə saxlanılır)
@@ -90,7 +91,11 @@ export const EventsList: React.FC = () => {
           ev.location.toLowerCase().includes(query) ||
           ev.description.toLowerCase().includes(query);
 
-        return matchesCategory && matchesSearch;
+        // Status filtri (Gələcəkdə, Davam edir, Bitib)
+        const evStatus = ev.status || 'Gələcəkdə';
+        const matchesStatus = statusFilter === 'all' || evStatus === statusFilter;
+
+        return matchesCategory && matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
         const timeA = parseAzerbaijaniDate(a.date);
@@ -101,7 +106,7 @@ export const EventsList: React.FC = () => {
           return timeB - timeA;
         }
       });
-  }, [events, selectedCategory, searchTerm, sortByDate]);
+  }, [events, selectedCategory, searchTerm, statusFilter, sortByDate]);
 
   if (isLoading) {
     return (
@@ -178,8 +183,22 @@ export const EventsList: React.FC = () => {
           )}
         </div>
 
-        {/* Sağ Tərəf: Tarix Süzgəci */}
+        {/* Sağ Tərəf: Status Seçimi və Tarix Süzgəci */}
         <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
+          {/* Status Seçimi: Gələcəkdə (default), Davam edir, Bitib, Hamısı */}
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="appearance-none bg-white border border-borderBeige rounded-2xl pl-4 pr-8 py-3 text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm"
+            >
+              <option value="Gələcəkdə">Gələcəkdə</option>
+              <option value="Davam edir">Davam edir</option>
+              <option value="Bitib">Bitib</option>
+              <option value="all">Bütün statuslar</option>
+            </select>
+          </div>
+
           <div className="relative">
             <select
               value={sortByDate}
@@ -338,6 +357,7 @@ export const EventsList: React.FC = () => {
             onClick={() => {
               setSelectedCategory('all');
               setSearchTerm('');
+              setStatusFilter('all');
             }}
             className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-xs rounded-xl shadow-sm transition"
           >
