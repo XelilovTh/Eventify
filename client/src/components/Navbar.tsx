@@ -2,7 +2,7 @@
 // Bu fayl mockup Şəkil 1-dəki dizayna tam uyğunlaşdırılmış naviqasiya panelidir:
 // Pill formalı keçidlər (Ana səhifə, Tədbirlər, Mənim qeydiyyatlarım, Seçilmişlər), bildiriş zəngi və istifadəçi profili.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../app/hooks';
 import { 
@@ -11,12 +11,21 @@ import {
   Ticket, 
   Heart, 
   ShieldAlert, 
-  ChevronDown 
+  ChevronDown,
+  Menu,
+  X,
+  User as UserIcon
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Səhifə dəyişəndə mobil menyunu avtomatik bağlayırıq
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -32,7 +41,7 @@ export const Navbar: React.FC = () => {
             <span className="font-sans">Event<span className="text-accent">ify</span></span>
           </Link>
 
-          {/* 2. Əsas Menyu (Pill formalı keçidlər - Şəkil 1) */}
+          {/* 2. Əsas Menyu (Masaüstü Ekranlar) */}
           <div className="hidden md:flex items-center space-x-2">
             <Link
               to="/"
@@ -86,26 +95,23 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* 3. Sağ Tərəf: Profil və Çıxış */}
+          {/* 3. Sağ Tərəf: Profil və Çıxış / Giriş */}
           <div className="flex items-center space-x-3">
             {isAuthenticated ? (
-              <>
-                {/* İstifadəçi Avatarı və Adı */}
-                <Link
-                  to="/profile"
-                  className="flex items-center space-x-2.5 p-1.5 pl-2 pr-3 bg-cream/40 hover:bg-cream/80 border border-borderBeige rounded-full transition group"
-                >
-                  <div className="w-8 h-8 rounded-full bg-accent/30 text-primary font-bold flex items-center justify-center text-xs border border-accent/40">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-xs font-bold text-primary group-hover:text-accent transition">
-                    {user?.name}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-secondary" />
-                </Link>
-              </>
+              <Link
+                to="/profile"
+                className="flex items-center space-x-2.5 p-1.5 pl-2 pr-3 bg-cream/40 hover:bg-cream/80 border border-borderBeige rounded-full transition group"
+              >
+                <div className="w-8 h-8 rounded-full bg-accent/30 text-primary font-bold flex items-center justify-center text-xs border border-accent/40">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden sm:inline-block text-xs font-bold text-primary group-hover:text-accent transition">
+                  {user?.name}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-secondary hidden sm:inline-block" />
+              </Link>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="hidden sm:flex items-center space-x-3">
                 <Link
                   to="/login"
                   className="text-primary hover:text-accent font-bold px-4 py-2 rounded-xl text-xs transition"
@@ -120,9 +126,92 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             )}
+
+            {/* Mobil Hamburger Açma Düyməsi */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-secondary hover:text-primary rounded-xl focus:outline-none transition"
+              aria-label="Menyu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* 4. Mobil Menyu Qutusu (Yalnız kiçik ekranlarda açılır) */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-borderBeige bg-white px-4 py-4 space-y-2 shadow-lg animate-fade-in">
+          <Link
+            to="/"
+            className={`flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition ${
+              isActive('/') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
+            }`}
+          >
+            <Home className="w-4 h-4" />
+            <span>Ana səhifə</span>
+          </Link>
+
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/my-registrations"
+                className={`flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition ${
+                  isActive('/my-registrations') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
+                }`}
+              >
+                <Ticket className="w-4 h-4" />
+                <span>Mənim qeydiyyatlarım</span>
+              </Link>
+
+              <Link
+                to="/favorites"
+                className={`flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition ${
+                  isActive('/favorites') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
+                }`}
+              >
+                <Heart className="w-4 h-4" />
+                <span>Seçilmişlər</span>
+              </Link>
+
+              <Link
+                to="/profile"
+                className={`flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition ${
+                  isActive('/profile') ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-cream/60'
+                }`}
+              >
+                <UserIcon className="w-4 h-4" />
+                <span>Şəxsi Profil</span>
+              </Link>
+
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold bg-accent/20 border border-accent/40 text-primary"
+                >
+                  <ShieldAlert className="w-4 h-4 text-accent" />
+                  <span>Admin Panel</span>
+                </Link>
+              )}
+            </>
+          ) : (
+            <div className="pt-2 border-t border-borderBeige flex flex-col gap-2">
+              <Link
+                to="/login"
+                className="w-full text-center py-2.5 text-primary font-bold text-xs bg-cream/70 rounded-xl"
+              >
+                Daxil ol
+              </Link>
+              <Link
+                to="/register"
+                className="w-full text-center py-2.5 bg-primary text-white font-bold text-xs rounded-xl shadow-sm"
+              >
+                Qeydiyyatdan Keç
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

@@ -4,6 +4,8 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { ScrollToTop } from './components/ScrollToTop';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { EventsList } from './pages/EventsList';
 import { EventDetail } from './pages/EventDetail';
@@ -18,6 +20,9 @@ import { MyRegistrations } from './pages/MyRegistrations';
 function App() {
   return (
     <div className="min-h-screen bg-cream text-primary flex flex-col font-sans selection:bg-accent selection:text-white">
+      {/* Səhifə keçidlərində yuxarı fırlanma */}
+      <ScrollToTop />
+
       {/* Ümumi Naviqasiya Paneli */}
       <Navbar />
 
@@ -80,10 +85,8 @@ function App() {
         </Routes>
       </main>
 
-      {/* Sadə Footer */}
-      <footer className="border-t border-borderBeige py-6 text-center text-xs text-secondary/80">
-        © 2026 Eventify — Tədbir İdarəetmə Sistemi. Bütün hüquqlar qorunur.
-      </footer>
+      {/* Müasir və Real Layihə Formatında Footer */}
+      <Footer />
     </div>
   );
 }
