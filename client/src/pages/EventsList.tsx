@@ -37,6 +37,38 @@ const CATEGORIES = [
   { id: 'Digər', label: 'Digər', icon: MoreHorizontal },
 ];
 
+// Azərbaycan dilindəki tarixləri (məs: "15 Noyabr 2026, 10:00") millisaniyəyə çevirən dəqiq funksiya
+const parseAzerbaijaniDate = (dateStr: string): number => {
+  if (!dateStr) return 0;
+  const months: { [key: string]: number } = {
+    yanvar: 0, fevral: 1, mart: 2, aprel: 3, may: 4, iyun: 5,
+    iyul: 6, avqust: 7, sentyabr: 8, oktyabr: 9, noyabr: 10, dekabr: 11
+  };
+
+  const parsedDirect = Date.parse(dateStr);
+  if (!isNaN(parsedDirect)) return parsedDirect;
+
+  const clean = dateStr.replace(/,/g, '').replace(/–/g, '-');
+  const parts = clean.split(' ').filter(Boolean);
+  if (parts.length >= 3) {
+    const day = parseInt(parts[0], 10);
+    const monthName = parts[1].toLowerCase();
+    const year = parseInt(parts[2], 10);
+    let hours = 0;
+    let minutes = 0;
+    if (parts[3] && parts[3].includes(':')) {
+      const timeParts = parts[3].split(':');
+      hours = parseInt(timeParts[0], 10) || 0;
+      minutes = parseInt(timeParts[1], 10) || 0;
+    }
+
+    if (months[monthName] !== undefined && !isNaN(day) && !isNaN(year)) {
+      return new Date(year, months[monthName], day, hours, minutes).getTime();
+    }
+  }
+  return 0;
+};
+
 export const EventsList: React.FC = () => {
   const { data: events, isLoading, error } = useGetEventsQuery();
 
@@ -58,6 +90,15 @@ export const EventsList: React.FC = () => {
       localStorage.setItem('eventify_favs', JSON.stringify(updated));
       return updated;
     });
+  };
+
+  // Yavaş və axıcı sürüşdürmə (Smooth scroll)
+  const scrollToEvents = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const section = document.getElementById('events-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   // useMemo ilə kateqoriya, axtarış və tarix sıralaması
@@ -84,10 +125,12 @@ export const EventsList: React.FC = () => {
         return matchesCategory && matchesSearch;
       })
       .sort((a, b) => {
+        const timeA = parseAzerbaijaniDate(a.date);
+        const timeB = parseAzerbaijaniDate(b.date);
         if (sortByDate === 'asc') {
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
+          return timeA - timeB;
         } else {
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          return timeB - timeA;
         }
       });
   }, [events, selectedCategory, searchTerm, sortByDate]);
@@ -133,14 +176,14 @@ export const EventsList: React.FC = () => {
             Konfranslar, seminarlar, festivallar və daha çoxu – hamısı bir yerdə.
           </p>
           <div className="pt-2">
-            <a
-              href="#events-section"
-              className="inline-flex items-center space-x-2 px-6 py-3.5 bg-[#C49A6C] hover:bg-[#B58957] text-[#24130A] font-bold rounded-2xl text-xs sm:text-sm shadow-lg transition duration-200"
+            <button
+              onClick={scrollToEvents}
+              className="inline-flex items-center space-x-2 px-6 py-3.5 bg-[#C49A6C] hover:bg-[#B58957] text-[#24130A] font-bold rounded-2xl text-xs sm:text-sm shadow-lg transition duration-200 cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
               <span>Tədbirlərə bax</span>
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -218,12 +261,8 @@ export const EventsList: React.FC = () => {
       </div>
 
       {/* 4. BÖLMƏ BAŞLIĞI: Yaxınlaşan tədbirlər */}
-      <div id="events-section" className="flex items-center justify-between pt-4">
+      <div id="events-section" className="pt-4">
         <h2 className="text-2xl font-extrabold text-primary tracking-tight">Yaxınlaşan tədbirlər</h2>
-        <span className="text-xs font-bold text-secondary hover:text-primary cursor-pointer flex items-center space-x-1">
-          <span>Hamısına bax</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </span>
       </div>
 
       {/* 5. TƏDBİR KARTLARI (Mockup 1 ilə 100% eyni) */}

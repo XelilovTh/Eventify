@@ -22,8 +22,7 @@ import {
   Trash2, 
   ArrowRight,
   Ticket,
-  Star,
-  Quote
+  Star
 } from 'lucide-react';
 
 export const Profile: React.FC = () => {
@@ -87,7 +86,6 @@ export const Profile: React.FC = () => {
               {user?.name?.charAt(0).toUpperCase()}
             </div>
             <h2 className="text-lg font-bold text-primary">{user?.name}</h2>
-            <p className="text-secondary text-xs mt-0.5 font-medium">Tələbə • ADNSU — İT</p>
             <p className="text-secondary/70 text-xs mt-1">{user?.email}</p>
 
             <span className={`inline-block mt-3 text-[11px] px-3 py-1 rounded-full font-bold uppercase ${
@@ -130,14 +128,7 @@ export const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. Motivasiya Sitatı (Şəkil 2) */}
-          <div className="bg-cream/70 border border-borderBeige rounded-[2rem] p-6 text-center space-y-2">
-            <Quote className="w-6 h-6 text-accent mx-auto" />
-            <p className="text-xs text-primary font-semibold italic">
-              "Kiçik addımlar, böyük hədəflərə aparır."
-            </p>
-            <p className="text-[11px] text-secondary font-bold">Eventify Platforması</p>
-          </div>
+
 
           {/* 4. Məlumatları Yenilə Forması */}
           <div className="bg-white border border-borderBeige rounded-[2rem] p-6 shadow-sm">

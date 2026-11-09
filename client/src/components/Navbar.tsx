@@ -11,7 +11,6 @@ import {
   Home, 
   Ticket, 
   Heart, 
-  Bell, 
   LogOut, 
   ShieldAlert, 
   ChevronDown 
@@ -56,14 +55,6 @@ export const Navbar: React.FC = () => {
               <span>Ana səhifə</span>
             </Link>
 
-            <Link
-              to="/"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-bold text-secondary hover:text-primary hover:bg-cream/60 transition"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Tədbirlər</span>
-            </Link>
-
             {isAuthenticated && (
               <>
                 <Link
@@ -104,21 +95,10 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* 3. Sağ Tərəf: Bildirişlər və Profil */}
-          <div className="flex items-center space-x-4">
+          {/* 3. Sağ Tərəf: Profil və Çıxış */}
+          <div className="flex items-center space-x-3">
             {isAuthenticated ? (
               <>
-                {/* Bildiriş Zəngi */}
-                <button
-                  className="relative p-2.5 text-secondary hover:text-primary bg-cream/50 hover:bg-cream rounded-full transition"
-                  title="Bildirişlər"
-                >
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-accent text-white font-bold text-[10px] rounded-full flex items-center justify-center">
-                    3
-                  </span>
-                </button>
-
                 {/* İstifadəçi Avatarı və Adı */}
                 <Link
                   to="/profile"
