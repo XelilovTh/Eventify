@@ -1,10 +1,6 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import db from '../db.js';
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
+import { JWT_SECRET } from '../config.js';
 
 export const authenticate = (req, res, next) => {
   const authHeader = req.headers['authorization'];

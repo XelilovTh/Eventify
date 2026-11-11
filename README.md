@@ -55,10 +55,10 @@ Tətbiq brauzerdə `http://localhost:5173` ünvanında açılır.
 
 ## Standart İstifadəçi Hesabları
 
-- **Admin hesabı:**
+- **Admin hesabı (İlkin / Demo mühit üçün):**
   - E-poçt: `admin@eventify.com`
   - Şifrə: `admin123`
-  *(Tədbirlərin yaradılması, redaktəsi, silinməsi və iştirakçıların idarəsi)*
+  *(Qeyd: Bu şifrə yalnız lokal test və nümayiş üçün ilkin təyin olunub. Canlı istehsalat (production) mühitində `ADMIN_PASSWORD` mühit dəyişəni və ya admin paneli vasitəsilə dəyişdirilməlidir).*
 
 - **İstifadəçi hesabı:**
   - Qeydiyyat səhifəsindən istənilən e-poçtla yeni hesab yaradıla bilər.

@@ -31,7 +31,12 @@ router.get('/', (req, res) => {
     if (err) {
       return res.status(500).json({ message: 'Tədbirlər yüklənərkən xəta baş verdi.' });
     }
-    res.json(rows);
+    const sortedRows = [...(rows || [])].sort((a, b) => {
+      const timeA = parseEventDate(a.date) || 0;
+      const timeB = parseEventDate(b.date) || 0;
+      return timeA - timeB;
+    });
+    res.json(sortedRows);
   });
 });
 

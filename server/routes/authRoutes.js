@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../db.js';
 import { authenticate } from '../middleware/authMiddleware.js';
+import { JWT_SECRET } from '../config.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'eventify_production_secure_jwt_token_key_nov_2026';
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;

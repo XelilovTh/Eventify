@@ -1,18 +1,42 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import { PORT, CLIENT_URL } from './config.js';
 import { initDB } from './db.js';
 import authRoutes from './routes/authRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://eventify-t.vercel.app',
+  'https://eventify-self-ten.vercel.app'
+];
+
+if (CLIENT_URL) {
+  CLIENT_URL.split(',').forEach((url) => {
+    const trimmed = url.trim();
+    if (trimmed && !allowedOrigins.includes(trimmed)) {
+      allowedOrigins.push(trimmed);
+    }
+  });
+}
 
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = 
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      process.env.NODE_ENV !== 'production';
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS siyasəti bu mənşəyə icazə vermir: ${origin}`));
+  },
   credentials: true
 }));
 app.use(express.json());

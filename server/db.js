@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ADMIN_PASSWORD } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,7 +70,7 @@ export const initDB = () => {
     const checkAdminSql = `SELECT * FROM users WHERE email = ?`;
     db.get(checkAdminSql, ['admin@eventify.com'], (err, row) => {
       if (!row) {
-        const hashedPassword = bcrypt.hashSync('admin123', 10);
+        const hashedPassword = bcrypt.hashSync(ADMIN_PASSWORD, 10);
         db.run(
           `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)`,
           ['Admin', 'admin@eventify.com', hashedPassword, 'admin']
