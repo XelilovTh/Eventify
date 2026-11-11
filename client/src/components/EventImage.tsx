@@ -2,10 +2,6 @@ import React, { useState } from 'react';
 
 export const PLACEHOLDER_IMAGE = '/event-placeholder.svg';
 
-/**
- * Tədbir şəklini göstərir. Şəkil URL-i boş və ya yüklənməsə
- * yerli placeholder işə düşür (xarici 404 yaratmadan).
- */
 interface EventImageProps {
   src?: string | null;
   alt: string;

@@ -1,9 +1,5 @@
 import React from 'react';
 
-/**
- * Azərbaycan dilində forma validasiya mesajları.
- * Brauzerin daxili (TR) "Lütfen bu alanı doldurun." mesajını əvəz edir.
- */
 export const AZ_VALIDATION_MESSAGES = {
   required: 'Bu sahəni doldurun.',
   email: 'Düzgün e-poçt ünvanı daxil edin.',
@@ -34,10 +30,6 @@ export type ValidatableElement = HTMLInputElement | HTMLTextAreaElement | HTMLSe
 
 export type AzMessageResolver = (element: ValidatableElement) => string;
 
-/**
- * Native brauzer validasiyasını saxlayır, lakin mesajı Azərbaycan dilində göstərir.
- * `resolve` funksiyası elementin vəziyyətindən asılı olaraq düzgün mesajı seçir.
- */
 export const azValidationProps = (
   resolve: string | AzMessageResolver = AZ_VALIDATION_MESSAGES.required
 ): {
@@ -62,21 +54,18 @@ export const azValidationProps = (
   };
 };
 
-/** E-poçt üçün: boşdursa "required", format pozğundursa "email" mesajı. */
 export const emailMessage: AzMessageResolver = (el) => {
   if (el.validity.valueMissing) return AZ_VALIDATION_MESSAGES.required;
   if (el.validity.typeMismatch) return AZ_VALIDATION_MESSAGES.email;
   return AZ_VALIDATION_MESSAGES.email;
 };
 
-/** Şifrə üçün: boşdursa "required", qısadırsa "passwordMin" mesajı. */
 export const passwordMessage: AzMessageResolver = (el) => {
   if (el.validity.valueMissing) return AZ_VALIDATION_MESSAGES.required;
   if (el.validity.tooShort) return AZ_VALIDATION_MESSAGES.passwordMin;
   return AZ_VALIDATION_MESSAGES.passwordMin;
 };
 
-/** Rəqəm üçün: boşdursa "required", 1-dən kiçikdirsə "capacity" mesajı. */
 export const capacityMessage: AzMessageResolver = (el) => {
   if (el.validity.valueMissing) return AZ_VALIDATION_MESSAGES.required;
   if (el.validity.rangeUnderflow) return AZ_VALIDATION_MESSAGES.capacity;
@@ -84,7 +73,6 @@ export const capacityMessage: AzMessageResolver = (el) => {
   return AZ_VALIDATION_MESSAGES.required;
 };
 
-/** URL üçün: boşdursa keçilir, format pozğundursa "url" mesajı. */
 export const urlMessage: AzMessageResolver = (el) => {
   if (el.validity.typeMismatch) return AZ_VALIDATION_MESSAGES.url;
   if (el.validity.valueMissing) return AZ_VALIDATION_MESSAGES.required;

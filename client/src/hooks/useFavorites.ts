@@ -34,7 +34,6 @@ export const useFavorites = () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newFavs));
     } catch {
-      // ignore
     }
     window.dispatchEvent(new Event(SYNC_EVENT));
   }, []);
