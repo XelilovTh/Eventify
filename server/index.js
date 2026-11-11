@@ -11,6 +11,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
   'https://eventify-t.vercel.app',
   'https://eventify-self-ten.vercel.app'
 ];
@@ -27,14 +29,15 @@ if (CLIENT_URL) {
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    const isAllowed = 
-      allowedOrigins.includes(origin) ||
-      origin.endsWith('.vercel.app') ||
-      process.env.NODE_ENV !== 'production';
 
-    if (isAllowed) {
+    const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    const isVercel = origin.endsWith('.vercel.app');
+    const isExplicitlyAllowed = allowedOrigins.includes(origin);
+
+    if (isExplicitlyAllowed || isVercel || isLocalhost) {
       return callback(null, true);
     }
+
     callback(new Error(`CORS siyasəti bu mənşəyə icazə vermir: ${origin}`));
   },
   credentials: true
