@@ -160,3 +160,7 @@ client/.env
 # Browser automation artifacts (chrome-devtools-mcp)
 .edge-debug-profile/
 
+# AI context documentation (local only)
+PROJECT_CONTEXT.md
+
+
