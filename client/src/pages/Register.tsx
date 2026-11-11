@@ -4,6 +4,7 @@ import { useRegisterMutation } from '../api/apiSlice';
 import { useAppDispatch } from '../app/hooks';
 import { setCredentials } from '../features/auth/authSlice';
 import { User, Mail, Lock, AlertCircle, UserPlus } from 'lucide-react';
+import { AZ_VALIDATION_MESSAGES, azValidationProps, emailMessage, passwordMessage } from '../utils/validation';
 
 export const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -59,51 +60,64 @@ export const Register: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="register-name" className="block text-xs font-semibold text-primary mb-1.5">
               Ad və Soyad
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="register-name"
+                name="name"
                 type="text"
+                autoComplete="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ad və soyad"
+                {...azValidationProps(AZ_VALIDATION_MESSAGES.required)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="register-email" className="block text-xs font-semibold text-primary mb-1.5">
               E-poçt
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="register-email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@domain.com"
+                {...azValidationProps(emailMessage)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="register-password" className="block text-xs font-semibold text-primary mb-1.5">
               Şifrə
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="register-password"
+                name="password"
                 type="password"
+                autoComplete="new-password"
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                {...azValidationProps(passwordMessage)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>

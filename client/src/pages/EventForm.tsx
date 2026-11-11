@@ -9,6 +9,7 @@ import { Calendar, MapPin, Users, FileText, ArrowLeft, Save, Clock } from 'lucid
 import { EVENT_CATEGORIES } from '../types';
 import type { EventStatus } from '../types';
 import { formatToAzerbaijaniDate, toDateTimeLocalValue } from '../utils/dateUtils';
+import { AZ_VALIDATION_MESSAGES, azValidationProps, capacityMessage, urlMessage } from '../utils/validation';
 
 export const EventForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,11 @@ export const EventForm: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const { data: existingEvent, isLoading: isLoadingEvent } = useGetEventByIdQuery(eventId, {
+  const {
+    data: existingEvent,
+    isLoading: isLoadingEvent,
+    isError: isEventError,
+  } = useGetEventByIdQuery(eventId, {
     skip: !isEditMode,
   });
 
@@ -84,17 +89,17 @@ export const EventForm: React.FC = () => {
     setErrorMessage('');
 
     if (formData.capacity <= 0) {
-      setErrorMessage('Tutum ən azı 1 olmalıdır.');
+      setErrorMessage(AZ_VALIDATION_MESSAGES.capacity);
       return;
     }
 
     if (!formData.date) {
-      setErrorMessage('Tədbirin tarix və saatını seçin.');
+      setErrorMessage(AZ_VALIDATION_MESSAGES.dateRequired);
       return;
     }
 
     if (dateLocal && deadlineLocal && deadlineLocal > dateLocal) {
-      setErrorMessage('Son qeydiyyat tarixi tədbir tarixindən sonraya təyin edilə bilməz.');
+      setErrorMessage(AZ_VALIDATION_MESSAGES.deadlineAfterDate);
       return;
     }
 
@@ -114,6 +119,23 @@ export const EventForm: React.FC = () => {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="text-secondary text-sm">Yüklənir...</div>
+      </div>
+    );
+  }
+
+  if (isEditMode && isEventError) {
+    return (
+      <div className="max-w-md mx-auto my-12 p-6 bg-red-50 border border-red-200 rounded-2xl text-center text-red-700">
+        <p className="font-semibold">Tədbir tapılmadı.</p>
+        <p className="text-xs mt-2 text-secondary">
+          Redaktə olunan tədbir mövcud deyil və ya silindi.
+        </p>
+        <Link
+          to="/admin"
+          className="inline-block mt-4 text-accent hover:underline text-sm font-medium"
+        >
+          Admin panelə qayıt
+        </Link>
       </div>
     );
   }
@@ -144,17 +166,20 @@ export const EventForm: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="event-title" className="block text-xs font-semibold text-primary mb-1.5">
               Başlıq
             </label>
             <div className="relative">
               <FileText className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="event-title"
+                name="title"
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Tədbirin adı"
+                {...azValidationProps(AZ_VALIDATION_MESSAGES.required)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
@@ -162,10 +187,12 @@ export const EventForm: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-primary mb-1.5">
+              <label htmlFor="event-category" className="block text-xs font-semibold text-primary mb-1.5">
                 Kateqoriya
               </label>
               <select
+                id="event-category"
+                name="category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl px-3 py-2.5 text-primary focus:outline-none focus:border-accent text-sm"
@@ -179,10 +206,12 @@ export const EventForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-primary mb-1.5">
+              <label htmlFor="event-status" className="block text-xs font-semibold text-primary mb-1.5">
                 Status
               </label>
               <select
+                id="event-status"
+                name="status"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as EventStatus })}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl px-3 py-2.5 text-primary focus:outline-none focus:border-accent text-sm"
@@ -195,30 +224,36 @@ export const EventForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="event-image-url" className="block text-xs font-semibold text-primary mb-1.5">
               Şəkil URL
             </label>
             <input
+              id="event-image-url"
+              name="image_url"
               type="url"
               value={formData.image_url}
               onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
               placeholder="https://..."
+              {...azValidationProps(urlMessage)}
               className="w-full bg-cream/30 border border-borderBeige rounded-xl px-3.5 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-primary mb-1.5">
+              <label htmlFor="event-date" className="block text-xs font-semibold text-primary mb-1.5">
                 Tarix və Saat
               </label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="event-date"
+                  name="date"
                   type="datetime-local"
                   required
                   value={dateLocal}
                   onChange={(e) => handleDateChange(e.target.value)}
+                  {...azValidationProps(AZ_VALIDATION_MESSAGES.dateRequired)}
                   className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary focus:outline-none focus:border-accent text-sm cursor-pointer"
                 />
               </div>
@@ -230,16 +265,19 @@ export const EventForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-primary mb-1.5">
+              <label htmlFor="event-deadline" className="block text-xs font-semibold text-primary mb-1.5">
                 Son Qeydiyyat Tarixi
               </label>
               <div className="relative">
                 <Clock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="event-deadline"
+                  name="registration_deadline"
                   type="datetime-local"
                   value={deadlineLocal}
                   max={dateLocal || undefined}
                   onChange={(e) => handleDeadlineChange(e.target.value)}
+                  {...azValidationProps(AZ_VALIDATION_MESSAGES.deadlineAfterDate)}
                   className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary focus:outline-none focus:border-accent text-sm cursor-pointer"
                 />
               </div>
@@ -273,49 +311,58 @@ export const EventForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="event-capacity" className="block text-xs font-semibold text-primary mb-1.5">
               Tutum (Nəfər)
             </label>
             <div className="relative">
               <Users className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="event-capacity"
+                name="capacity"
                 type="number"
                 required
                 min={1}
                 value={formData.capacity}
                 onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
+                {...azValidationProps(capacityMessage)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="event-location" className="block text-xs font-semibold text-primary mb-1.5">
               Məkan
             </label>
             <div className="relative">
               <MapPin className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="event-location"
+                name="location"
                 type="text"
                 required
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="Məsələn: Bakı Konqres Mərkəzi"
+                {...azValidationProps(AZ_VALIDATION_MESSAGES.required)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2.5 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="event-description" className="block text-xs font-semibold text-primary mb-1.5">
               Təsvir
             </label>
             <textarea
+              id="event-description"
+              name="description"
               required
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Tədbir haqqında məlumat..."
+              {...azValidationProps(AZ_VALIDATION_MESSAGES.required)}
               className="w-full bg-cream/30 border border-borderBeige rounded-xl p-3 text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent text-sm"
             />
           </div>

@@ -156,3 +156,7 @@ vite.config.ts.timestamp-*
 # Environment files in server
 server/.env
 client/.env
+
+# Browser automation artifacts (chrome-devtools-mcp)
+.edge-debug-profile/
+

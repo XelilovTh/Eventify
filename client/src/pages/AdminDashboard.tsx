@@ -24,12 +24,15 @@ import {
   Clock
 } from 'lucide-react';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { EventImage } from '../components/EventImage';
 import { isDatePassed } from '../utils/dateUtils';
+import { isTestUser } from '../utils/testUsers';
 
 export const AdminDashboard: React.FC = () => {
   const { user: currentUser } = useAppSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState<'events' | 'users'>('events');
   const [searchTerm, setSearchTerm] = useState('');
+  const [hideTestUsers, setHideTestUsers] = useState(false);
   const [selectedEventForAttendees, setSelectedEventForAttendees] = useState<number | null>(null);
 
   const { data: stats } = useGetAdminStatsQuery();
@@ -72,15 +75,22 @@ export const AdminDashboard: React.FC = () => {
 
   const filteredUsers = useMemo(() => {
     if (!users) return [];
-    if (!searchTerm.trim()) return users;
     const q = searchTerm.toLowerCase().trim();
-    return users.filter(
-      (u) =>
+    return users.filter((u) => {
+      if (hideTestUsers && isTestUser(u.email)) return false;
+      if (!q) return true;
+      return (
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         u.role.toLowerCase().includes(q)
-    );
-  }, [users, searchTerm]);
+      );
+    });
+  }, [users, searchTerm, hideTestUsers]);
+
+  const testUserCount = useMemo(
+    () => (users ? users.filter((u) => isTestUser(u.email)).length : 0),
+    [users]
+  );
 
   const handleDeleteEvent = (id: number, title: string) => {
     setConfirmModal({
@@ -198,13 +208,32 @@ export const AdminDashboard: React.FC = () => {
             </button>
           </div>
 
+          {activeTab === 'users' && testUserCount > 0 && (
+            <label className="flex items-center gap-2 text-xs font-semibold text-secondary cursor-pointer select-none">
+              <input
+                id="admin-hide-test-users"
+                name="hideTestUsers"
+                type="checkbox"
+                checked={hideTestUsers}
+                onChange={(e) => setHideTestUsers(e.target.checked)}
+                className="w-4 h-4 accent-[#C49A6C] cursor-pointer"
+              />
+              <span>
+                Test hesablarını gizlət ({testUserCount} avtomatik yaradılmış hesab — məlumat silinmir)
+              </span>
+            </label>
+          )}
+
           <div className="relative max-w-xs w-full">
             <Search className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
+              id="admin-search"
+              name="search"
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={activeTab === 'events' ? 'Tədbir axtar...' : 'İstifadəçi axtar...'}
+              aria-label={activeTab === 'events' ? 'Tədbir axtar' : 'İstifadəçi axtar'}
               className="w-full bg-cream/40 border border-borderBeige rounded-xl pl-10 pr-8 py-2.5 text-xs text-primary placeholder:text-secondary/50 focus:outline-none focus:border-accent font-medium"
             />
             {searchTerm && (
@@ -253,15 +282,9 @@ export const AdminDashboard: React.FC = () => {
                           <div className="flex items-center space-x-3.5">
                             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-cream border border-borderBeige flex-shrink-0">
                               {event.image_url ? (
-                                <img
+                                <EventImage
                                   src={event.image_url}
                                   alt={event.title}
-                                  loading="lazy"
-                                  decoding="async"
-                                  onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=200&q=80';
-                                  }}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
@@ -408,9 +431,16 @@ export const AdminDashboard: React.FC = () => {
                             </div>
                             <div>
                               <p className="font-bold text-primary">{u.name}</p>
-                              {isSelf && (
-                                <span className="text-[10px] text-accent font-semibold">(Siz)</span>
-                              )}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isSelf && (
+                                  <span className="text-[10px] text-accent font-semibold">(Siz)</span>
+                                )}
+                                {isTestUser(u.email) && (
+                                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                                    Test
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>

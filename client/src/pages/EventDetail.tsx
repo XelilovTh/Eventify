@@ -9,6 +9,7 @@ import {
 import { useAppSelector } from '../app/hooks';
 import { Calendar, MapPin, Users, CheckCircle, AlertCircle, ArrowLeft, Clock } from 'lucide-react';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { EventImage } from '../components/EventImage';
 import { isDatePassed } from '../utils/dateUtils';
 
 export const EventDetail: React.FC = () => {
@@ -94,13 +95,9 @@ export const EventDetail: React.FC = () => {
       <div className="bg-white border border-borderBeige rounded-3xl overflow-hidden shadow-xl">
         {event.image_url && (
           <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-cream">
-            <img
+            <EventImage
               src={event.image_url}
               alt={event.title}
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
-              }}
               className="w-full h-full object-cover"
             />
             {event.status && (

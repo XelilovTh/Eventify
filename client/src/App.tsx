@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from './app/hooks';
 import { useGetMeQuery } from './api/apiSlice';
 import { logout, updateUser } from './features/auth/authSlice';
@@ -16,6 +16,7 @@ import { EventForm } from './pages/EventForm';
 import { Profile } from './pages/Profile';
 import { Favorites } from './pages/Favorites';
 import { MyRegistrations } from './pages/MyRegistrations';
+import { NotFound } from './pages/NotFound';
 
 function AuthVerifier() {
   const token = useAppSelector((state) => state.auth.token);
@@ -106,7 +107,7 @@ function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

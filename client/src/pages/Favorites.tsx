@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useGetEventsQuery } from '../api/apiSlice';
 import { useFavorites } from '../hooks/useFavorites';
 import { Calendar, MapPin, Users, ArrowRight, Heart, ArrowLeft } from 'lucide-react';
+import { EventImage } from '../components/EventImage';
 
 export const Favorites: React.FC = () => {
   const { data: events, isLoading } = useGetEventsQuery();
@@ -51,15 +52,9 @@ export const Favorites: React.FC = () => {
               >
                 <div>
                   <div className="relative h-44 w-full overflow-hidden bg-cream">
-                    <img
-                      src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
+                    <EventImage
+                      src={event.image_url}
                       alt={event.title}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
-                      }}
                       className="w-full h-full object-cover"
                     />
                     <button

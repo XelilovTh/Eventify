@@ -12,7 +12,7 @@ router.get('/stats', (req, res) => {
   db.get(`SELECT COUNT(*) AS total_events FROM events`, (err, row1) => {
     stats.totalEvents = row1 ? row1.total_events : 0;
 
-    db.get(`SELECT COUNT(*) AS total_users FROM users WHERE role = 'user'`, (err, row2) => {
+    db.get(`SELECT COUNT(*) AS total_users FROM users`, (err, row2) => {
       stats.totalUsers = row2 ? row2.total_users : 0;
 
       db.get(`SELECT COUNT(*) AS total_registrations FROM registrations`, (err, row3) => {

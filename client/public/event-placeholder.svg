@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="1000" height="600" role="img" aria-label="Tədbir şəkli yoxdur">
+  <rect width="1000" height="600" fill="#F3EDE3"/>
+  <g fill="none" stroke="#C49A6C" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="330" y="170" width="340" height="270" rx="28"/>
+    <path d="M330 250 H670"/>
+    <path d="M410 130 V190"/>
+    <path d="M590 130 V190"/>
+  </g>
+  <text x="500" y="500" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="700" fill="#8A7355" text-anchor="middle">Şəkil yoxdur</text>
+</svg>

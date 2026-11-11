@@ -5,6 +5,7 @@ import {
   useCancelRegistrationMutation 
 } from '../api/apiSlice';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { EventImage } from '../components/EventImage';
 import { 
   Calendar, 
   MapPin, 
@@ -65,15 +66,9 @@ export const MyRegistrations: React.FC = () => {
               className="bg-white border border-borderBeige rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between"
             >
               <div className="flex items-start space-x-3.5">
-                <img
-                  src={ev.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=300&q=80'}
+                <EventImage
+                  src={ev.image_url}
                   alt={ev.title}
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=300&q=80';
-                  }}
                   className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
                 />
 

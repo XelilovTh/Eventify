@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { updateUser, logout } from '../features/auth/authSlice';
 import { useFavorites } from '../hooks/useFavorites';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { AZ_VALIDATION_MESSAGES, azValidationProps, passwordMessage } from '../utils/validation';
 import { 
   User, 
   Lock, 
@@ -145,32 +146,41 @@ export const Profile: React.FC = () => {
 
         <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-lg">
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="profile-name" className="block text-xs font-semibold text-primary mb-1.5">
               Ad və Soyad
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="profile-name"
+                name="name"
                 type="text"
+                autoComplete="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                {...azValidationProps(AZ_VALIDATION_MESSAGES.required)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2 text-primary focus:outline-none focus:border-accent text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-primary mb-1.5">
+            <label htmlFor="profile-new-password" className="block text-xs font-semibold text-primary mb-1.5">
               Yeni Şifrə (dəyişmək istəmirsinizsə boş buraxın)
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="profile-new-password"
+                name="newPassword"
                 type="password"
+                autoComplete="new-password"
+                minLength={6}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Yeni şifrə"
+                {...azValidationProps(passwordMessage)}
                 className="w-full bg-cream/30 border border-borderBeige rounded-xl pl-10 pr-4 py-2 text-primary focus:outline-none focus:border-accent text-sm"
               />
             </div>

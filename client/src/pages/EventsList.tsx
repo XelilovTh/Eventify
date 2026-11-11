@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { parseAzerbaijaniDate } from '../utils/dateUtils';
 import { useFavorites } from '../hooks/useFavorites';
+import { EventImage } from '../components/EventImage';
 import type { StatusFilter, DateSortOrder } from '../types';
 
 const CATEGORIES = [
@@ -166,10 +167,13 @@ export const EventsList: React.FC = () => {
         <div className="relative w-full md:flex-1">
           <Search className="w-5 h-5 text-secondary absolute left-4 top-1/2 -translate-y-1/2" />
           <input
+            id="events-search"
+            name="search"
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tədbir və ya məkan axtar..."
+            aria-label="Tədbir və ya məkan axtar"
             className="w-full bg-cream/40 border border-borderBeige rounded-2xl pl-12 pr-10 py-3.5 text-sm text-primary placeholder:text-secondary/60 focus:outline-none focus:border-accent font-medium shadow-sm"
           />
           {searchTerm && (
@@ -185,6 +189,9 @@ export const EventsList: React.FC = () => {
         <div className="grid grid-cols-2 gap-2.5 w-full md:flex md:w-auto md:items-center md:space-x-2">
           <div className="relative w-full">
             <select
+              id="events-status-filter"
+              name="status"
+              aria-label="Status filtri"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
               className="w-full appearance-none bg-white border border-borderBeige rounded-2xl px-4 py-3 text-center text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm truncate"
@@ -198,6 +205,9 @@ export const EventsList: React.FC = () => {
 
           <div className="relative w-full">
             <select
+              id="events-sort"
+              name="sort"
+              aria-label="Tarixə görə sıralama"
               value={sortByDate}
               onChange={(e) => setSortByDate(e.target.value as DateSortOrder)}
               className="w-full appearance-none bg-white border border-borderBeige rounded-2xl pl-8 pr-3 py-3 text-center text-xs font-bold text-secondary hover:text-primary focus:outline-none focus:border-accent cursor-pointer shadow-sm truncate"
@@ -270,15 +280,9 @@ export const EventsList: React.FC = () => {
                 >
                   <div>
                     <div className="relative h-48 w-full overflow-hidden bg-cream">
-                      <img
-                        src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80'}
+                      <EventImage
+                        src={event.image_url}
                         alt={event.title}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80';
-                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                       />
 
